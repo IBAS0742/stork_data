@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="echarts.js"></script>
+    <style>
+        #echart {
+            width: 100vw;
+            height: 100vh;
+        }
+        body {
+            padding: 0;
+            margin: 0;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+<div id="echart"></div>
+<script>
+    let opt = data => {
+        let d = new Date();
+        let times = [];
+        let current = [];
+        let low = [];
+        let height = [];
+        let volume = [];
+        let avg_price = [];
+        data.items.forEach((it,ind) => {
+            d.setTime(it.timestamp);
+            times.push(`${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`);
+            current.push(it.current);
+            height.push(it.high);
+            low.push(it.low);
+            avg_price.push(it.avg_price);
+            volume.push([
+                ind + 1,
+                it.volume,
+                1
+            ]);
+        });
+        return option = {
+            "animation": false,
+            "legend": {
+                "bottom": 10,
+                "left": "center",
+                "data": [
+                    "current",
+                    "low",
+                    "height",
+                    "volume",
+                    "avg_price"
+                ]
+            },
+            "tooltip": {
+                "trigger": "axis",
+                "axisPointer": {
+                    "type": "cross"
+                },
+                "borderWidth": 1,
+                "borderColor": "#ccc",
+                "padding": 10,
+                "textStyle": {
+                    "color": "#000"
+                }
+            },
+            "axisPointer": {
+                "link": [
+                    {
+                        "xAxisIndex": "all"
+                    }
+                ],
+                "label": {
+                    "backgroundColor": "#777"
+                }
+            },
+            "toolbox": {
+                "feature": {
+                    "dataZoom": {
+                        "yAxisIndex": false
+                    },
+                    "brush": {
+                        "type": [
+                            "lineX",
+                            "clear"
+                        ]
+                    }
+                }
+            },
+            "brush": {
+                "xAxisIndex": "all",
+                "brushLink": "all",
+                "outOfBrush": {
+                    "colorAlpha": 0.1
+                }
+            },
+            "visualMap": {
+                "show": false,
+                "seriesIndex": 4,
+                "dimension": 2,
+                "pieces": [
+                    {
+                        "value": 1,
+                        "color": "#ec0000"
+                    },
+                    {
+                        "value": -1,
+                        "color": "#00da3c"
+                    }
+                ]
+            },
+            "grid": [
+                {
+                    "left": "10%",
+                    "right": "8%",
+                    "height": "50%"
+                },
+                {
+                    "left": "10%",
+                    "right": "8%",
+                    "top": "63%",
+                    "height": "16%"
+                }
+            ],
+            "xAxis": [
+                {
+                    "type": "category",
+                    "data": times,
+                    "boundaryGap": false,
+                    "axisLine": {
+                        "onZero": false
+                    },
+                    "splitLine": {
+                        "show": false
+                    },
+                    "min": "dataMin",
+                    "max": "dataMax",
+                    "axisPointer": {
+                        "z": 100
+                    }
+                },
+                {
+                    "type": "category",
+                    "gridIndex": 1,
+                    "data": times,
+                    "boundaryGap": false,
+                    "axisLine": {
+                        "onZero": false
+                    },
+                    "axisTick": {
+                        "show": false
+                    },
+                    "splitLine": {
+                        "show": false
+                    },
+                    "axisLabel": {
+                        "show": false
+                    },
+                    "min": "dataMin",
+                    "max": "dataMax"
+                }
+            ],
+            "yAxis": [
+                {
+                    "scale": true,
+                    "splitArea": {
+                        "show": true
+                    }
+                },
+                {
+                    "scale": true,
+                    "gridIndex": 1,
+                    "splitNumber": 2,
+                    "axisLabel": {
+                        "show": false
+                    },
+                    "axisLine": {
+                        "show": false
+                    },
+                    "axisTick": {
+                        "show": false
+                    },
+                    "splitLine": {
+                        "show": false
+                    }
+                }
+            ],
+            "dataZoom": [
+                {
+                    "type": "inside",
+                    "xAxisIndex": [
+                        0,
+                        1
+                    ],
+                    "start": 0,
+                    "end": 100
+                },
+                {
+                    "show": true,
+                    "xAxisIndex": [
+                        0,
+                        1
+                    ],
+                    "type": "slider",
+                    "top": "85%",
+                    "start": 0,
+                    "end": 100
+                }
+            ],
+            "series": [
+                /*{
+                    "name": "Dow-Jones index",
+                    "type": "candlestick",
+                    "data": [
+                        [
+                            10556.37,
+                            10600.51,
+                            10503.7,
+                            10666.88,
+                            254170000
+                        ],
+                        [
+                            10601.4,
+                            10528.66,
+                            10447.92,
+                            10676.96,
+                            224300000
+                        ],
+                        [
+                            10522.77,
+                            10623.62,
+                            10453.11,
+                            10665.7,
+                            214920000
+                        ],
+                        [
+                            10624.22,
+                            10623.18,
+                            10545.03,
+                            10717.4,
+                            219720000
+                        ],
+                        [
+                            10625.25,
+                            10568.29,
+                            10490.14,
+                            10691.77,
+                            234260000
+                        ]
+                    ],
+                    "itemStyle": {
+                        "color": "#00da3c",
+                        "color0": "#ec0000"
+                    },
+                    "tooltip": {}
+                },*/
+                {
+                    "name": "current",
+                    "type": "line",
+                    "data": current,
+                    "smooth": true,
+                    "lineStyle": {
+                        "opacity": 0.5
+                    }
+                },
+                {
+                    "name": "avg_price",
+                    "type": "line",
+                    "data": avg_price,
+                    "smooth": true,
+                    "lineStyle": {
+                        "opacity": 0.5
+                    }
+                },
+                {
+                    "name": "height",
+                    "type": "line",
+                    "data": height,
+                    "smooth": true,
+                    "lineStyle": {
+                        "opacity": 0.5
+                    }
+                },
+                {
+                    "name": "low",
+                    "type": "line",
+                    "data": low,
+                    "smooth": true,
+                    "lineStyle": {
+                        "opacity": 0.5
+                    }
+                },
+                {
+                    "name": "Volume",
+                    "type": "bar",
+                    "xAxisIndex": 1,
+                    "yAxisIndex": 1,
+                    "data": volume
+                }
+            ]
+        }
+    }
+    window.onload = function () {
+        let ec = echarts.init(document.getElementById('echart'));
+        fetch('./../tmp/a.json').then(_=>_.json())
+        .then(d => {
+            ec.setOption(opt(d.data),true);
+            ec.resize();
+        })
+    }
+</script>
+</body>
+</html>
