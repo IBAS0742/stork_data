@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <script src="echarts.js"></script>
+    <script src="./js/echarts.js"></script>
     <style>
         #bar {
             height: 30px;
@@ -19,18 +19,32 @@
             margin: 0;
             border: none;
         }
+        #tip {
+            position: fixed;
+            z-index: 100;
+            top: 0;
+            right: 0;
+        }
+        td {
+            min-width: 50px;
+        }
     </style>
 </head>
 <body>
 <div id="bar">
+    <button onclick="location.reload()">刷新</button>
+    <input type="text" id="code" value="SH600809;SH603993;SZ000858;SZ002326;SH601117;SZ002444;SH603719;SH603230;SZ002157;SZ002607;" style="width: 100px"/>
+    <button onclick="toFetch(this)">执行</button>
     <select id="sel" onchange="changeLines()">
         <option></option>
     </select>
     <button onclick="nextOne()">下一个</button>
 </div>
+<table id="tip"></table>
 <div id="echart"></div>
 <script>
     window.sel = null;
+    window.tip = null;
     window.ec = null;
     window.data = null;
     window.toId = null;
@@ -59,9 +73,257 @@
             return this._value;
         }
     }
-    let opt = data => {
-        let d = new Date();
-        let times = [];
+    const times = [
+        "9:30:0",
+        "9:31:0",
+        "9:32:0",
+        "9:33:0",
+        "9:34:0",
+        "9:35:0",
+        "9:36:0",
+        "9:37:0",
+        "9:38:0",
+        "9:39:0",
+        "9:40:0",
+        "9:41:0",
+        "9:42:0",
+        "9:43:0",
+        "9:44:0",
+        "9:45:0",
+        "9:46:0",
+        "9:47:0",
+        "9:48:0",
+        "9:49:0",
+        "9:50:0",
+        "9:51:0",
+        "9:52:0",
+        "9:53:0",
+        "9:54:0",
+        "9:55:0",
+        "9:56:0",
+        "9:57:0",
+        "9:58:0",
+        "9:59:0",
+        "10:0:0",
+        "10:1:0",
+        "10:2:0",
+        "10:3:0",
+        "10:4:0",
+        "10:5:0",
+        "10:6:0",
+        "10:7:0",
+        "10:8:0",
+        "10:9:0",
+        "10:10:0",
+        "10:11:0",
+        "10:12:0",
+        "10:13:0",
+        "10:14:0",
+        "10:15:0",
+        "10:16:0",
+        "10:17:0",
+        "10:18:0",
+        "10:19:0",
+        "10:20:0",
+        "10:21:0",
+        "10:22:0",
+        "10:23:0",
+        "10:24:0",
+        "10:25:0",
+        "10:26:0",
+        "10:27:0",
+        "10:28:0",
+        "10:29:0",
+        "10:30:0",
+        "10:31:0",
+        "10:32:0",
+        "10:33:0",
+        "10:34:0",
+        "10:35:0",
+        "10:36:0",
+        "10:37:0",
+        "10:38:0",
+        "10:39:0",
+        "10:40:0",
+        "10:41:0",
+        "10:42:0",
+        "10:43:0",
+        "10:44:0",
+        "10:45:0",
+        "10:46:0",
+        "10:47:0",
+        "10:48:0",
+        "10:49:0",
+        "10:50:0",
+        "10:51:0",
+        "10:52:0",
+        "10:53:0",
+        "10:54:0",
+        "10:55:0",
+        "10:56:0",
+        "10:57:0",
+        "10:58:0",
+        "10:59:0",
+        "11:0:0",
+        "11:1:0",
+        "11:2:0",
+        "11:3:0",
+        "11:4:0",
+        "11:5:0",
+        "11:6:0",
+        "11:7:0",
+        "11:8:0",
+        "11:9:0",
+        "11:10:0",
+        "11:11:0",
+        "11:12:0",
+        "11:13:0",
+        "11:14:0",
+        "11:15:0",
+        "11:16:0",
+        "11:17:0",
+        "11:18:0",
+        "11:19:0",
+        "11:20:0",
+        "11:21:0",
+        "11:22:0",
+        "11:23:0",
+        "11:24:0",
+        "11:25:0",
+        "11:26:0",
+        "11:27:0",
+        "11:28:0",
+        "11:29:0",
+        "11:30:0",
+        "13:0:0",
+        "13:1:0",
+        "13:2:0",
+        "13:3:0",
+        "13:4:0",
+        "13:5:0",
+        "13:6:0",
+        "13:7:0",
+        "13:8:0",
+        "13:9:0",
+        "13:10:0",
+        "13:11:0",
+        "13:12:0",
+        "13:13:0",
+        "13:14:0",
+        "13:15:0",
+        "13:16:0",
+        "13:17:0",
+        "13:18:0",
+        "13:19:0",
+        "13:20:0",
+        "13:21:0",
+        "13:22:0",
+        "13:23:0",
+        "13:24:0",
+        "13:25:0",
+        "13:26:0",
+        "13:27:0",
+        "13:28:0",
+        "13:29:0",
+        "13:30:0",
+        "13:31:0",
+        "13:32:0",
+        "13:33:0",
+        "13:34:0",
+        "13:35:0",
+        "13:36:0",
+        "13:37:0",
+        "13:38:0",
+        "13:39:0",
+        "13:40:0",
+        "13:41:0",
+        "13:42:0",
+        "13:43:0",
+        "13:44:0",
+        "13:45:0",
+        "13:46:0",
+        "13:47:0",
+        "13:48:0",
+        "13:49:0",
+        "13:50:0",
+        "13:51:0",
+        "13:52:0",
+        "13:53:0",
+        "13:54:0",
+        "13:55:0",
+        "13:56:0",
+        "13:57:0",
+        "13:58:0",
+        "13:59:0",
+        "14:0:0",
+        "14:1:0",
+        "14:2:0",
+        "14:3:0",
+        "14:4:0",
+        "14:5:0",
+        "14:6:0",
+        "14:7:0",
+        "14:8:0",
+        "14:9:0",
+        "14:10:0",
+        "14:11:0",
+        "14:12:0",
+        "14:13:0",
+        "14:14:0",
+        "14:15:0",
+        "14:16:0",
+        "14:17:0",
+        "14:18:0",
+        "14:19:0",
+        "14:20:0",
+        "14:21:0",
+        "14:22:0",
+        "14:23:0",
+        "14:24:0",
+        "14:25:0",
+        "14:26:0",
+        "14:27:0",
+        "14:28:0",
+        "14:29:0",
+        "14:30:0",
+        "14:31:0",
+        "14:32:0",
+        "14:33:0",
+        "14:34:0",
+        "14:35:0",
+        "14:36:0",
+        "14:37:0",
+        "14:38:0",
+        "14:39:0",
+        "14:40:0",
+        "14:41:0",
+        "14:42:0",
+        "14:43:0",
+        "14:44:0",
+        "14:45:0",
+        "14:46:0",
+        "14:47:0",
+        "14:48:0",
+        "14:49:0",
+        "14:50:0",
+        "14:51:0",
+        "14:52:0",
+        "14:53:0",
+        "14:54:0",
+        "14:55:0",
+        "14:56:0",
+        "14:57:0",
+        "14:58:0",
+        "14:59:0",
+        "15:0:0"
+    ];
+    let selected = {
+        "low": false,
+        "height": false,
+        "avg_price": true,
+    };
+    window.sell_buy = {};
+    let opt = (data,onlyAlert) => {
         let current = [];
         let low = [];
         let height = [];
@@ -74,8 +336,6 @@
         let greenBar = new Bar();
         let redBar = new Bar();
         data.items.forEach((it,ind) => {
-            d.setTime(it.timestamp);
-            times.push(`${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`);
             current.push(it.current);
             height.push(it.high);
             low.push(it.low);
@@ -139,7 +399,6 @@
             // }
         });
 
-        console.log(times);
         let maxPercent = -1;
         percent.forEach(p => {
             maxPercent = maxPercent > p[1] ? maxPercent : p[1];
@@ -204,6 +463,25 @@
             }
         }
 
+        if (onlyAlert) {
+            // 5 / 7
+            let len = avgRate.length;
+            let p = 0;
+            let n = 0;
+            if (len > 7) {
+                let ars = avgRate.slice(len - 7,);
+                // debugger
+                ars.forEach(_ => {
+                    if (_[2] < 0) {
+                        n++;
+                    } else if (_[2] > 0) {
+                        p++;
+                    }
+                });
+                return [p,n];
+            }
+        }
+
         let option = {
             "animation": false,
             "legend": {
@@ -218,11 +496,7 @@
                     "avg_rate",
                     "percent",
                 ],
-                selected: {
-                    "low": false,
-                    "height": false,
-                    "avg_price": false,
-                }
+                selected: selected
             },
             "tooltip": {
                 "trigger": "axis",
@@ -588,7 +862,7 @@
         }
         console.log(option);
         return option;
-    }
+    };
     window.changeLines = function () {
         if (window.sel.value in window.data) {
             ec.setOption(opt(window.data[window.sel.value]),true);
@@ -611,41 +885,139 @@
     window.ts2Date = (() => {
         let d = new Date();
         return ts => {
-            d.setTime(+ts);
-            return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+            ts = ts.toString();
+            if (/^[0-9]+$/.test(ts)) {
+                d.setTime(+ts);
+                return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+            } else {
+                return ts;
+            }
         }
     })();
     window.onload = function () {
         window.sel = document.getElementById(`sel`);
+        window.tip = document.getElementById(`tip`);
         window.ec = echarts.init(document.getElementById('echart'));
-        fetch('./../storkData/SH600809.json').then(_=>_.json())
-        .then(d => {
-            console.log(d);
-            let opts = [];
-            let lastI = '';
-            if (`lines` in d) {
-                for (let i in d.lines) {
+        // fetch('./../storkData/SH600809.json').then(_=>_.json())
+        // .then(d => {
+        //     console.log(d);
+        //     let opts = [];
+        //     let lastI = '';
+        //     if (`lines` in d) {
+        //         for (let i in d.lines) {
+        //             opts.push(`<option value="${i}">${ts2Date(i)}</option>`);
+        //             lastI = i;
+        //         }
+        //         window.data = d.lines;
+        //     } else {
+        //         window.data = {};
+        //         for (let i in d) {
+        //             if (d[i].data.items.length) {
+        //                 opts.push(`<option value="${i}">${ts2Date(i)}</option>`);
+        //                 lastI = i;
+        //                 window.data[i] = d[i].data;
+        //             }
+        //         }
+        //     }
+        //     window.sel.innerHTML = opts.join('\r\n');
+        //     window.sel.value = lastI;
+        //     changeLines();
+        // });
+        window.ec.on('legendselectchanged',e => {
+            console.log(e.name);
+            selected[e.name] = !selected[e.name];
+        });
+    }
+    const { ipcRenderer } = require('electron');
+    window.toFetch = function (el) {
+        el.remove();
+        let d = new Date();
+        let t = d.getTime();
+        d.setHours(15);
+        d.setMinutes(2);
+        d.setSeconds(0);
+        let deta = d.getTime() - t;
+        let id = setInterval(() => {
+            if (deta <= 0) {
+                clearInterval(id);
+            }
+            deta--
+            let code = document.getElementById('code').value.split(';').map(_ => _.trim()).filter(_ => _);
+            ipcRenderer.send('get_data',code);
+        },1000);
+    };
+    window.len = 3;
+    const buildTableTds = (new class {
+        constructor() {
+            this.tds = [];
+            this.trs = [];
+        }
+        clear() {
+            this.trs = [];
+            this.tds = [];
+            return this;
+        }
+        add(code,tip) {
+            if (this.tds.length >= window.len) {
+                this.trs.push(JSON.parse(JSON.stringify(this.tds)));
+                this.tds = [];
+            }
+            this.tds.push([code,tip]);
+            return this;
+        }
+        buildByTds(tds) {
+            return tds.map(td => {
+                return `
+<td style="text-align: center;width: 40px;">${td[0]}</td>
+<td style="width: 7px;background:red;color: white;text-align: center;">${td[1][0]}</td>
+<td style="width: 7px;background:green;color: white;text-align: center;">${td[1][1]}</td>`
+            }).join('');
+        }
+        getTrs() {
+            let trs = this.trs.map(tr => {
+                return `<tr>${this.buildByTds(tr)}</tr>`;
+            }).join('\r\n');
+            if (this.tds.length) {
+                trs += `<tr>${this.buildByTds(this.tds)}</tr>`;
+            }
+            return trs;
+        }
+    });
+    ipcRenderer.on('fetch_result',(event,d) => {
+        console.log(d);
+        let opts = [];
+        // let tips = [];
+        let lastSelect = window.sel.value;
+        let lastI = '';
+        buildTableTds.clear();
+        if (`lines` in d) {
+            for (let i in d.lines) {
+                opts.push(`<option value="${i}">${ts2Date(i)}</option>`);
+                lastI = i;
+            }
+            window.data = d.lines;
+        } else {
+            window.sell_buy = {};
+            window.data = {};
+            for (let i in d) {
+                if (d[i].data.items.length) {
                     opts.push(`<option value="${i}">${ts2Date(i)}</option>`);
                     lastI = i;
-                }
-                window.data = d.lines;
-            } else {
-                window.data = {};
-                for (let i in d) {
-                    if (d[i].data.items.length) {
-                        opts.push(`<option value="${i}">${ts2Date(i)}</option>`);
-                        lastI = i;
-                        window.data[i] = d[i].data;
+                    window.data[i] = d[i].data;
+                    let _tip = opt(d[i].data,true);
+                    // window.sell_buy[i] =
+                    if (_tip) {
+                        buildTableTds.add(i,_tip)
+                        // tips += `<!--<span>${i}&nbsp;&nbsp;&nbsp;${_tip}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><br/>-->`;
                     }
                 }
             }
-            window.sel.innerHTML = opts.join('\r\n');
-            window.sel.value = lastI;
-            changeLines();
-        });
-
-
-    }
+        }
+        window.tip.innerHTML = buildTableTds.getTrs();
+        window.sel.innerHTML = opts.join('\r\n');
+        window.sel.value = lastSelect || lastI;
+        changeLines();
+    })
 </script>
 </body>
 </html>

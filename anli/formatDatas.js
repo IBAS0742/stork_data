@@ -23,10 +23,23 @@ const formatDatas = json => {
     let items = [];
     for (let i in json) {
         if (json[i].data.items.length) {
-            items.push({
-                ...json[i].data,
-                date: i,
+            let theItems = json[i].data.items;
+            let high = theItems[0].high;
+            let low = theItems[0].low;
+            theItems.forEach(it => {
+                if (it.high)
+                    high = high > it.high ? high : it.high;
+                if (it.low)
+                    low = low < it.low ? low : it.low;
             });
+            items.push({
+                items: theItems,
+                date: +i,
+                high,
+                low,
+                last_close: theItems[theItems.length - 1].current,
+            });
+
         }
     }
     return items.sort((a,b) => a.date - b.date);

@@ -1,0 +1,13 @@
+{
+  "name": "chrome-download" ,
+  "version": "1.0.0" ,
+  "main": "pachong_yiqing.js" ,
+  "_main": "main.js" ,
+  "author": "IBAS" ,
+  "dependencies": {
+    "electron": "^17.0.1"
+  },
+  "scripts": {
+    "start": "electron ."
+  }
+}
