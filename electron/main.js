@@ -11,8 +11,8 @@ const {
 function createWindow () {
     // 创建浏览器窗口
     const mainWindow = new BrowserWindow({
-        width: 800,
-        height: 600,
+        width: 1500,
+        height: 940,
         webPreferences: {
             nodeIntegration: true,
             // 官网似乎说是默认false，但是这里必须设置contextIsolation

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <script src="./js/echarts.js"></script>
+    <script src="./js/code.js"></script>
     <style>
         #bar {
             height: 30px;
@@ -27,6 +28,12 @@
         }
         td {
             min-width: 50px;
+            text-align: center;
+        }
+        #info {
+            position: fixed;
+            left: 0;
+            top: 80px;
         }
     </style>
 </head>
@@ -41,10 +48,12 @@
     <button onclick="nextOne()">下一个</button>
 </div>
 <table id="tip"></table>
+<table id="info"></table>
 <div id="echart"></div>
 <script>
     window.sel = null;
     window.tip = null;
+    window.info = null;
     window.ec = null;
     window.data = null;
     window.toId = null;
@@ -447,6 +456,7 @@
                 }
             };
         }
+        data.upLastClose = data.upLastClose || (data.items[0].current - data.items[0].chg);
         if (data.upLastClose) {
             markLine = {
                 markLine: {
@@ -468,18 +478,41 @@
             let len = avgRate.length;
             let p = 0;
             let n = 0;
+            let ars = [];
             if (len > 7) {
-                let ars = avgRate.slice(len - 7,);
-                // debugger
-                ars.forEach(_ => {
-                    if (_[2] < 0) {
-                        n++;
-                    } else if (_[2] > 0) {
-                        p++;
-                    }
-                });
-                return [p,n];
+                ars = avgRate.slice(len - 7,);
+            } else {
+                ars = avgRate.slice(0,);
             }
+            // debugger
+            ars.forEach(_ => {
+                if (_[2] < 0) {
+                    n++;
+                } else if (_[2] > 0) {
+                    p++;
+                }
+            });
+            let last_avg_price = avg_price[avg_price.length - 1];
+            let last_price = current[current.length - 1];
+            let avg_price_rate = 0;
+            let price_rate = 0;
+            if (last_avg_price > data.upLastClose) {
+                avg_price_rate = parseInt((last_avg_price / data.upLastClose - 1) * 1000) / 10;
+            } else {
+                avg_price_rate = - parseInt((1 - last_avg_price / data.upLastClose) * 1000) / 10;
+            }
+            if (last_price > data.upLastClose) {
+                price_rate = parseInt((last_price / data.upLastClose - 1) * 1000) / 10;
+            } else {
+                price_rate = - parseInt((1 - last_price / data.upLastClose) * 1000) / 10;
+            }
+            return {
+                avgRate: [p,n],
+                rate: {
+                    avg_price_rate,
+                    price_rate,
+                },
+            };
         }
 
         let option = {
@@ -595,12 +628,12 @@
                 {
                     "left": "10%",
                     "right": "10%",
-                    "height": "50%"
+                    "height": "65%"
                 },
                 {
                     "left": "10%",
                     "right": "8%",
-                    "top": "63%",
+                    "top": "78%",
                     "height": "16%"
                 }
             ],
@@ -726,28 +759,28 @@
                     max: maxPercent
                 },
             ],
-            "dataZoom": [
-                {
-                    "type": "inside",
-                    "xAxisIndex": [
-                        0,
-                        1
-                    ],
-                    "start": 0,
-                    "end": 100
-                },
-                {
-                    "show": true,
-                    "xAxisIndex": [
-                        0,
-                        1
-                    ],
-                    "type": "slider",
-                    "top": "85%",
-                    "start": 0,
-                    "end": 100
-                }
-            ],
+            // "dataZoom": [
+            //     {
+            //         "type": "inside",
+            //         "xAxisIndex": [
+            //             0,
+            //             1
+            //         ],
+            //         "start": 0,
+            //         "end": 100
+            //     },
+            //     {
+            //         "show": true,
+            //         "xAxisIndex": [
+            //             0,
+            //             1
+            //         ],
+            //         "type": "slider",
+            //         "top": "85%",
+            //         "start": 0,
+            //         "end": 100
+            //     }
+            // ],
             "series": [
                 /*{
                     "name": "Dow-Jones index",
@@ -890,13 +923,18 @@
                 d.setTime(+ts);
                 return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
             } else {
-                return ts;
+                if (ts in window.codeMapping) {
+                    return window.codeMapping[ts];
+                } else {
+                    return ts;
+                }
             }
         }
     })();
     window.onload = function () {
         window.sel = document.getElementById(`sel`);
         window.tip = document.getElementById(`tip`);
+        window.info = document.getElementById(`info`);
         window.ec = echarts.init(document.getElementById('echart'));
         // fetch('./../storkData/SH600809.json').then(_=>_.json())
         // .then(d => {
@@ -929,6 +967,8 @@
         });
     }
     const { ipcRenderer } = require('electron');
+    const sleepTime = 2000;
+    window.fetchingData = false;
     window.toFetch = function (el) {
         el.remove();
         let d = new Date();
@@ -938,15 +978,19 @@
         d.setSeconds(0);
         let deta = d.getTime() - t;
         let id = setInterval(() => {
+            if (window.fetchingData) {
+                return;
+            }
+            window.fetchingData = true;
             if (deta <= 0) {
                 clearInterval(id);
             }
             deta--
             let code = document.getElementById('code').value.split(';').map(_ => _.trim()).filter(_ => _);
             ipcRenderer.send('get_data',code);
-        },1000);
+        },sleepTime);
     };
-    window.len = 3;
+    window.len = 4;
     const buildTableTds = (new class {
         constructor() {
             this.tds = [];
@@ -967,10 +1011,13 @@
         }
         buildByTds(tds) {
             return tds.map(td => {
-                return `
-<td style="text-align: center;width: 40px;">${td[0]}</td>
+                let label = td[0];
+                if (td[0] in window.codeMapping) {
+                    label = window.codeMapping[td[0]];
+                }
+                return `<td style="text-align: center;min-width: 70px;color:white;background: black;cursor:pointer;" tar="${td[0]}" class="code">${label}</td>
 <td style="width: 7px;background:red;color: white;text-align: center;">${td[1][0]}</td>
-<td style="width: 7px;background:green;color: white;text-align: center;">${td[1][1]}</td>`
+<td style="width: 7px;background:green;color: white;text-align: center;">${td[1][1]}</td>`;
             }).join('');
         }
         getTrs() {
@@ -982,6 +1029,50 @@
             }
             return trs;
         }
+        setClick() {
+            let codes = window.tip.getElementsByClassName('code');
+            for (let i = 0;i < codes.length;i++) {
+                codes[i].onclick = function () {
+                    let code = this.getAttribute('tar');
+                    window.sel.value = code;
+                    window.changeLines();
+                }
+            }
+        }
+    });
+    const buildRateList = (new class {
+        constructor() {
+            this.list = [];
+        }
+        clear() {
+            this.list = [];
+        }
+        // rate: {
+        //     avg_price_rate: parseInt(avg_price[avg_price.length - 1] / data.upLastClose * 1000) / 100,
+        //     price_rate: parseInt(current[current.length - 1] / data.upLastClose * 1000) / 100,
+        // },
+        add(code,rate) {
+            this.list.push([code,rate]);
+        }
+        buildList() {
+            return `<tr><td style="background: black;color: white;">cur</td><td style="background: chocolate;color: white;">avg</td></tr>` + this.list.map(l => {
+                let label = l[0];
+                if (l[0] in window.codeMapping) {
+                    label = window.codeMapping[l[0]];
+                }
+                return `<tr><td class="code" style="cursor:pointer;background: royalblue;color: white;" colspan="2">${label}</td></tr><tr><td style="background: black;color: white;">${l[1].price_rate}</td><td style="background: chocolate;color: white;">${l[1].avg_price_rate}</td></tr>`
+            }).join(`\r\n`);
+        }
+        setClick() {
+            let codes = window.info.getElementsByClassName('code');
+            for (let i = 0;i < codes.length;i++) {
+                codes[i].onclick = function () {
+                    let code = this.getAttribute('tar');
+                    window.sel.value = code;
+                    window.changeLines();
+                }
+            }
+        }
     });
     ipcRenderer.on('fetch_result',(event,d) => {
         console.log(d);
@@ -990,6 +1081,7 @@
         let lastSelect = window.sel.value;
         let lastI = '';
         buildTableTds.clear();
+        buildRateList.clear();
         if (`lines` in d) {
             for (let i in d.lines) {
                 opts.push(`<option value="${i}">${ts2Date(i)}</option>`);
@@ -1007,16 +1099,21 @@
                     let _tip = opt(d[i].data,true);
                     // window.sell_buy[i] =
                     if (_tip) {
-                        buildTableTds.add(i,_tip)
+                        buildRateList.add(i,_tip.rate);
+                        buildTableTds.add(i,_tip.avgRate)
                         // tips += `<!--<span>${i}&nbsp;&nbsp;&nbsp;${_tip}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><br/>-->`;
                     }
                 }
             }
         }
         window.tip.innerHTML = buildTableTds.getTrs();
+        window.info.innerHTML = buildRateList.buildList();
         window.sel.innerHTML = opts.join('\r\n');
         window.sel.value = lastSelect || lastI;
+        buildTableTds.setClick();
+        buildRateList.setClick();
         changeLines();
+        window.fetchingData = false;
     })
 </script>
 </body>
