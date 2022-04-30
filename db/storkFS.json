@@ -1,0 +1,43 @@
+{
+  "db_path": "C:\\Users\\admin\\Documents\\stork_data\\db\\storkFS.db",
+  "static_path": "C:\\Users\\admin\\Documents\\stork_data\\db\\views\\",
+  "static_url": "/views/",
+  "others": [
+    "数据库表说明",
+    " id : symbol + timeStamp, symbol,time : 当日的时间戳,timeStamp : 单条记录的时间戳,amount : 该时间点交易量",
+    "percent : 涨跌幅, chg : 涨跌额, avg_price : 平均价格, volume : 量, current : 当前价格"
+  ],
+  "sqls": [
+    "create table if not exists recordFS (id char(30) primary key not null,symbol char(20) not null,time char(20) not null,timeStamp char(20) not null,amount char(20) not null,percent char(8) not null,chg char(20) not null,avg_price char(10) not null,volume char(20) not null,current char(20) not null);"
+  ],
+  "apis": [
+    {
+      "name": "getTables",
+      "return": [
+        "name"
+      ],
+      "param": [],
+      "sql": "select name from sqlite_master where type=\"table\" order by name;",
+      "desc": "-apis 获取所有的表名\r"
+    },
+    {
+      "name": "insertRecordFS",
+      "return": [],
+      "param": [
+        "id","symbol","time","timeStamp","amount","percent","chg","avg_price","volume","current"
+      ],
+      "sql": "insert or ignore into recordFS(id,symbol,time,timeStamp,amount,percent,chg,avg_price,volume,current) values(\"{id}\",\"{symbol}\",\"{time}\",\"{timeStamp}\",\"{amount}\",\"{percent}\",\"{chg}\",\"{avg_price}\",\"{volume}\",\"{current}\");",
+      "desc": "-apis 插入一个记录项（检查唯一值，但是实际上也可以不用）\r"
+    },
+    {
+      "name": "queryRecordFS",
+      "return": [
+        "id","symbol","time","timeStamp","amount","percent","chg","avg_price","volume","current"
+      ],
+      "param": [],
+      "sql": "select * from recordFS;",
+      "desc": "-apis 获取所有 recordFS 数据"
+    }
+  ],
+  "port": ":8090"
+}

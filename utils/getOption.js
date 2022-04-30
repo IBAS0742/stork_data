@@ -6,5 +6,10 @@ let option = {
 };
 
 module.exports = {
-    option
+    option,
+    setCookie(cookie) {
+        let o = JSON.parse(JSON.stringify(option));
+        o.headers.cookie = cookie;
+        return o;
+    }
 }

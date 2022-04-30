@@ -1,0 +1,52 @@
+{
+  "db_path": "C:\\Users\\admin\\Documents\\stork_data\\db\\stork.db",
+  "static_path": "C:\\Users\\admin\\Documents\\stork_data\\db\\views\\",
+  "static_url": "/views/",
+  "others": [
+    "数据库表说明",
+    "定义有了一个表 kRecord 用于记录日 K 字段如下",
+    "   id symbol+time，symbol 股票代码，time 交易日期，open low high close 开收高低",
+    "   ratePrice rate 涨跌额，涨跌幅(%),volume changeVolume 成交量(手)，成交额(手*价)",
+    "   change 换手率",
+    "         id(0+x) symbol(x) time(0) open(2) close(5)",
+    "         high(3) low(4) ratePrice(6) rate(7)",
+    "         volume(1) changeVolume(9) change(8)"
+  ],
+  "sqls": [
+    "create table if not exists kRecord (id char(30) primary key not null,symbol char(20) not null,time char(20) not null,open char(20) not null,close char(20) not null,high char(20) not null,low char(20) not null,rate char(10) not null,ratePrice char(20) not null,volume char(20) not null,changeVolume char(20) not null,change char(10) not null);"
+  ],
+  "apis": [
+    {
+      "name": "getTables",
+      "return": [
+        "name"
+      ],
+      "param": [],
+      "sql": "select name from sqlite_master where type=\"table\" order by name;",
+      "desc": "-apis 获取所有的表名\r"
+    },
+    {
+      "name": "insertkRecord",
+      "return": [],
+      "param": [
+        "id", "symbol", "time", "open", "close",
+        "high", "low", "ratePrice", "rate",
+        "volume", "changeVolume", "change"
+      ],
+      "sql": "insert or ignore into kRecord(id,symbol,time,open,close,high,low,ratePrice,rate,volume,changeVolume,change) values(\"{id}\",\"{symbol}\",\"{time}\",\"{open}\",\"{close}\",\"{high}\",\"{low}\",\"{ratePrice}\",\"{rate}\",\"{volume}\",\"{changeVolume}\",\"{change}\");",
+      "desc": "-apis 插入一个记录项（检查唯一值，但是实际上也可以不用）\r"
+    },
+    {
+      "name": "queryKRecord",
+      "return": [
+        "id", "symbol", "time", "open", "close",
+        "high", "low", "ratePrice", "rate",
+        "volume", "changeVolume", "change"
+      ],
+      "param": [],
+      "sql": "select * from kRecord;",
+      "desc": "-apis 获取所有 krecord 数据"
+    }
+  ],
+  "port": ":8089"
+}

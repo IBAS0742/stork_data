@@ -88,7 +88,8 @@ const getAdv = function (url,option,setReq) {
 /**
  * @return Promise
  * */
-const post = function (url,option,data) {
+const post = function (url,option,data,toStringMethod) {
+    toStringMethod = toStringMethod || qs.stringify
     let {
         reqMethod,
         opt
@@ -110,7 +111,7 @@ const post = function (url,option,data) {
         if (data) {
             let reqStr = data;
             if (typeof data === 'object')
-                reqStr = qs.stringify(data);
+                reqStr = toStringMethod(data);
             opt.headers = {
                 ...(opt.headers || {}),
                 'Content-Length': Buffer.byteLength(reqStr)
