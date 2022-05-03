@@ -1,6 +1,6 @@
 # stork_data
 
-- 数据太多放在了 [阿里云盘](「dbs」https://www.aliyundrive.com/s/nxbMF7tzRk4)
+- 数据太多放在了 [阿里云盘](https://www.aliyundrive.com/s/nxbMF7tzRk4)
 
 ### 日K ```雪盈```
 
