@@ -2,6 +2,8 @@
 
 - 数据太多放在了 [阿里云盘](https://www.aliyundrive.com/s/nxbMF7tzRk4)
 
+[simpledb.exe](https://gitee.com/IBAS0742/shareCode/blob/master/golang/SimpleDb/readme.md)
+
 ### 日K ```雪盈```
 
 [日K数据库](./db/stork.db)
@@ -26,7 +28,7 @@
 
 下面的第二列 ind 为 0 ，第三列 ind 为 1，二三列上部分 dir 为 买入 ，下部分为 卖出，并且不管是买入卖出都有对应的买入卖出数据
 
-例如 东亚前海证券广东分公司的数据如下
+例如 ```中兴商业(SZ000715)``` ```2022-04-19(1650297600)``` 数据在数据库中的表现如下
 
 | id                       | symbol | time(时间戳)  | name    | buy     | sale   | tag  | succ | dir | ind |
 |--------------------------|--------|------------|---------|---------|--------|------|------|-----|-----|
