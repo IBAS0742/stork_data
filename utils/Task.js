@@ -19,6 +19,11 @@ class Task {
         this.tmp = {};
     }
 
+    setRunOver(ro) {
+        this.runOver = ro;
+        return this;
+    }
+
     run() {
         let running = false;
         this.id = setInterval(() => {

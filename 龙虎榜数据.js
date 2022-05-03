@@ -5,9 +5,14 @@ const {
     option
 } = require('./utils/getOption');
 const {
-    runPromiseByArrReturnPromise
+    runPromiseByArrReturnPromise,
+    popArrWhen
 } = require('./utils/others');
-const fs = require('fs');
+const {
+    Api
+} = require('./utils/insertIntoDb');
+// const fs = require('fs');
+const api = new Api(8091);
 
 /**
  * 获取一个股票的某个日期的龙虎榜
@@ -54,33 +59,85 @@ const getOneDayData = () => {
  * @param code  代号
  * @param day   日期
  * */
-const saveToDb = (obj,code,day) => {};
+const saveToDb = (obj,code,day) => {
+    let raw = obj.data.dateList.map((dl,ind) => {
+        return [
+            ...dl.buyData.list.map(o => {
+                return {
+                    ...o,
+                    dir: 'buy',
+                    ind: ind
+                }
+            }),
+            ...dl.saleData.list.map(o => {
+                return {
+                    ...o,
+                    dir: 'sale',
+                    ind: ind
+                }
+            }),
+        ]
+    }).flatMap(_ => _);
+    return runPromiseByArrReturnPromise((item,ind) => {
+        item.departmentIcon = item.departmentIcon || 'other';
+        if (item.id === "JGZY") {
+            item.departmentIcon = "机构专用";
+        }
+        // id : symbol + time + rand + dir + ind
+        return api.insertRecordYZRow(`${code}-${day}-${ind}-${item.dir}-${item.ind}`,code,day,item.name,item.buy,item.sale,item.departmentIcon,item.succ,item.dir,item.ind);
+    },raw);
+};
+
+/**
+ * 确定是否可以去请求数据
+ * @param symbol    代号
+ * @param time      时间
+ */
+const checkToGetOneStorkDateData = (function () {
+    const emptyPromise = () => new Promise(s => s());
+    return (symbol,time) => {
+        return api.checkYZRowBySymbolAndTime(symbol,time)
+            .then(len => {
+                if (len) {
+                    console.log(`symbol = ${symbol}\ttime = ${time}\tlen = ${len}`);
+                    return emptyPromise();
+                } else {
+                    return getOneStorkDateData(symbol,time)
+                        .then(JSON.parse).then(o => {
+                            return saveToDb(o,symbol,time);
+                        });
+                }
+            })
+    };
+})();
 
 function getAll() {
     return getOneDayData().then(JSON.parse).then(o => {
         return o.data.all.list.map(_ => _.stockCode);
     }).then(codes => {
+        console.log(`codes.length = ${codes.length}`);
         return runPromiseByArrReturnPromise(code => {
             return getOneStorkDate(code).then(JSON.parse).then(o => {
                 return o.data.dateList;
             }).then(days => {
                 return runPromiseByArrReturnPromise(day => {
-                    return getOneStorkDateData(code,day)
-                        .then(JSON.parse).then(o => {
-                            // console.log(o);
-                            // fs.writeFileSync('./tmp.json',JSON.stringify(o),'utf-8');
-                            return true;
-                    })
-                },days);
+                    // return getOneStorkDateData(code,day)
+                    //     .then(JSON.parse).then(o => {
+                    //         return saveToDb(o,code,day);
+                    // })
+                    return checkToGetOneStorkDateData(code,day);
+                },days,null,10);
             });
-        },codes);
+        },codes,/*popArrWhen(codes,code => code === '200613')*/null,1000);
     });
 }
 
-getOneStorkDateData('002761','1651075200').then(JSON.parse).then(o => {
-    fs.writeFileSync('./tmp.json',JSON.stringify(o),'utf-8');
-    return true;
-})
+getAll();
+
+// getOneStorkDateData('002761','1651075200').then(JSON.parse).then(o => {
+//     fs.writeFileSync('./tmp.json',JSON.stringify(o),'utf-8');
+//     return true;
+// })
 
 // const gosdd = {
 //     "data": {

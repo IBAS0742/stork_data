@@ -1,52 +1,65 @@
-// const d = require('./codes.json');
-// const fs = require('fs');
-//
-// console.log(d.length)
-//
-// let filePath = `C:\\Users\\admin\\Documents\\stork_data\\storkData\\`;
-// let symbols = d.filter(dd =>
-// {
-//     return !fs.existsSync(`${filePath}${dd.symbol}.json`);
-// }).map(_ => {
-//     return {
-//         symbol: _.symbol
-//     }
-// });
-
-// fs.writeFileSync(`new_codes.json`,JSON.stringify(symbols),'utf-8');
-// console.log(symbols.length)
-
-// let lastOneIndex = 16;
-// let checklen = 200;
-// fs.readdirSync('./storkData').slice(lastOneIndex * checklen,(lastOneIndex + 1) * checklen).forEach((f,ind) => {
-//     // console.log(`lastOneIndex = ${ind}`);
-//     let json = require(`./storkData/${f}`);
-//     for (let i in json) {
-//         if (json[i]['error_description'] && json[i]['error_description'].length > 2) {
-//             console.log(f)
-//             break;
-//         }
-//     }
-//     delete json;
-// });
-// fs.writeFileSync(`new_codes.json`,JSON.stringify(symbols),'utf-8');
-// console.log(symbols.length)
-
 const fs = require('fs');
-const codes = {};
-let d = require('./result.json');
-require('./codes.json').forEach(c => {
-    codes[c.symbol] = c.name;
-});
-// {"file":"C:\\Users\\admin\\Documents\\stork_data\\storkData\\SH600007.json","buyInPrice":12.09,"last":16.64,"earn":108.33559999999999,"deta":563.3356}
-d = d.filter(_ => _.buyInPrice > 0.1).map(_ => {
-    let code = _.file.split('\\')[6].substring(0,8);
-    if (code[2] !== '0' && code[2] !== '6') {
-        return ``;
-    } else {
-        if (_.last < 25) {
-            return `${_.file},${code},${_.buyInPrice},${_.last},${_.earn},${_.deta},${_.deta / _.buyInPrice}`;
-        }
+const codes = require('./codes.json');
+
+let count = 0;
+let len = 48;
+let map = {};
+let ids = [];
+codes.forEach(c => {
+    count = count % len;
+    if (!(count in map)) {
+        map[count] = [];
+        ids.push([]);
     }
-}).filter(_ => _);
-fs.writeFileSync('result.csv',`file,code,buyInPrice,last,earn,deta,rate,\r\n` + d.join('\r\n'),'utf-8');
+    ids[count].push(c.symbol);
+    map[count].push(c.symbol);
+    count++;
+});
+
+const configure = {
+    "port": ":8099",
+    "db_path": "storkFS.db",
+    "static_path": "views\\",
+    "static_url": "/views/",
+    "others": [
+        "数据库表说明",
+        " id : symbol + timeStamp, symbol,time : 当日的时间戳,timeStamp : 单条记录的时间戳,amount : 该时间点交易量",
+        "percent : 涨跌幅, chg : 涨跌额, avg_price : 平均价格, volume : 量, current : 当前价格"
+    ],
+    "sqls": [
+        "create table if not exists recordFS (id char(30) primary key not null,symbol char(20) not null,time char(20) not null,timeStamp char(20) not null,amount char(20) not null,percent char(8) not null,chg char(20) not null,avg_price char(10) not null,volume char(20) not null,current char(20) not null);"
+    ],
+    "apis": ids.map((is,ind) => {
+        return [
+            {
+                "name": `write_recordFS${ind}`,
+                "return": [
+                    "id","symbol","time","timeStamp","amount","percent","chg","avg_price","volume","current"
+                ],
+                "param": [
+                    `C:\\Users\\admin\\Documents\\stork_data\\db\\fs\\out_${ind}.sql`,
+                    "insert or ignore into recordFS(id,symbol,time,timeStamp,amount,percent,chg,avg_price,volume,current) values(\"{0}\",\"{1}\",\"{2}\",\"{3}\",\"{4}\",\"{5}\",\"{6}\",\"{7}\",\"{8}\",\"{9}\");\r\n"
+                ],
+                "sql": `select * from recordFS where symbol in ('${is.join("','")}')`,
+                "desc": "-apis 获取所有的表名\r"
+            },
+            {
+                "name": `execute_recordFS${ind + 1}`,
+                "return": [
+                ],
+                "param": [
+                    `C:\\Users\\admin\\Documents\\stork_data\\storkSql\\${ind + 1}.sql`,
+                    "",
+                    "1000",
+                    ";insert or ignore into recordFS(id,symbol,time,timeStamp,amount,percent,chg,avg_price,volume,current) values"
+                ],
+                "sql": "{0}",
+                "desc": "sql 由 param[1] 生成"
+            }
+        ]
+    }).flatMap(_=>_)
+}
+
+fs.writeFileSync('./db/fs/map.json',JSON.stringify(map),'utf-8');
+fs.writeFileSync('./db/fs/sp.json',JSON.stringify(configure,'','\t'),'utf-8');
+

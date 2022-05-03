@@ -1,2 +1,3 @@
 storkData/
 electron/node_modules
+/test/

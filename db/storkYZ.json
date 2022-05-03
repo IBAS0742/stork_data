@@ -1,0 +1,52 @@
+{
+  "db_path": "C:\\Users\\admin\\Documents\\stork_data\\db\\storkYZ.db",
+  "static_path": "C:\\Users\\admin\\Documents\\stork_data\\db\\views\\",
+  "static_url": "/views/",
+  "port": ":8091",
+  "others": [
+    "数据库表说明",
+    "   表格：recordYZRow",
+    "     id (symbol + time + rand + dir + ind);symbol 股票代码;time 时间戳;name 机构/游资名称;buy 买入量;sale 卖出量;tag 标签;succ 胜率",
+    "     dir:方向（sale 卖出,buy 买入）; +ind 第几个索引",
+    "     ind 是第几个索引，因为在请求中，包含了上部分和下部分，分别为 日换手率达 20% 的证券 和 连续三个交易日内，跌幅偏离值累计达 20% 的证券"
+  ],
+  "sqls": [
+    "create table if not exists recordYZRow(id char(30) primary key not null,symbol char(10) not null,time char(16) not null,name char(20) not null,buy char(14) not null,sale char(14) not null,tag char(20),succ char(5),dir char(5) not null,ind INTEGER not null);"
+  ],
+  "apis": [
+    {
+      "name": "getTables",
+      "return": [
+        "name"
+      ],
+      "param": [],
+      "sql": "select name from sqlite_master where type=\"table\" order by name;",
+      "desc": "-apis 获取所有的表名\r"
+    },
+    {
+      "name": "insertRecordYZRow",
+      "return": [],
+      "param": [
+        "id","symbol","time","name","buy","sale","tag","succ","dir","ind"
+      ],
+      "sql": "insert or ignore into recordYZRow(id,symbol,time,name,buy,sale,tag,succ,dir,ind) values(\"{id}\",\"{symbol}\",\"{time}\",\"{name}\",\"{buy}\",\"{sale}\",\"{tag}\",\"{succ}\",\"{dir}\",\"{ind}\");",
+      "desc": "-apis 插入一个记录项（检查唯一值，但是实际上也可以不用）\r"
+    },
+    {
+      "name": "queryRecordYZRow",
+      "return": [
+        "id","symbol","time","name","buy","sale","tag","succ","dir","ind"
+      ],
+      "param": [],
+      "sql": "select * from recordYZ;",
+      "desc": "-apis 获取所有 RecordYZ 数据"
+    },
+    {
+      "name": "checkYZRowBySymbolAndTime",
+      "return": ["len"],
+      "param": ["symbol", "time"],
+      "sql": "select count(*) len from recordYZRow where symbol=\"{symbol}\" and time=\"{time}\";",
+      "desc": "select count(*) len from recordYZRow where symbol=\"688068\" and time=\"1651161600\";"
+    }
+  ]
+}

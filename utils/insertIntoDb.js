@@ -3,6 +3,14 @@ const {
 } = require('./../utils/Ajax');
 
 class Api {
+    static cut(str,len) {
+        if (str.length > len) {
+            return str.substring(0,len - 1);
+        } else {
+            return str;
+        }
+    }
+
     constructor(port) {
         this.port = port;
     }
@@ -37,7 +45,16 @@ class Api {
         return this.postToDb('insertRecordFS',[symbol + timeStamp,symbol,time,timeStamp,amount,percent,chg,avg_price,volume,current].map(_ => _ + ''));
     }
 
-
+    insertRecordYZRow(id,symbol,time,name,buy,sale,tag,succ,dir,ind) {
+        tag = Api.cut(tag,20);
+        name = Api.cut(name,20);
+        return this.postToDb('insertRecordYZRow',[id,symbol,time,name,buy,sale,tag,succ,dir,ind].map(_ => _ + ''));
+    }
+    checkYZRowBySymbolAndTime(symbol,time) {
+        return this.postToDb('checkYZRowBySymbolAndTime',[symbol,time].map(_ => _ + '')).then(JSON.parse).then(o => {
+            return JSON.parse(o.content)[0].len;
+        });
+    }
 }
 
 module.exports = {

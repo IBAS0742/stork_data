@@ -7,6 +7,8 @@
  */
 const runPromiseByArrReturnPromise = (promise,arr,doPromiseReturn,waitTime) => {
     let doing = false;
+    let ind = 0;
+    console.log(`arr.length = ${arr.length}`);
     doPromiseReturn = doPromiseReturn || (_=>_);
     return new Promise(s => {
         let _id = setInterval(() => {
@@ -14,10 +16,11 @@ const runPromiseByArrReturnPromise = (promise,arr,doPromiseReturn,waitTime) => {
                 doing = true;
                 if (arr.length) {
                     let id = arr.pop();
-                    promise(id)
+                    promise(id,ind)
                         .then(o => {
                             doPromiseReturn(o,id);
                             doing = false;
+                            ind++;
                         });
                 } else {
                     clearInterval(_id);
@@ -28,8 +31,31 @@ const runPromiseByArrReturnPromise = (promise,arr,doPromiseReturn,waitTime) => {
     });
 };
 
-
+const popArrWhen = (arr,check) => {
+    let len = arr.length;
+    for (let i = 0;i < len;i++) {
+        if (check(arr[arr.length - 1])) {
+            break;
+        } else {
+            arr.pop();
+        }
+    }
+    return arr;
+}
+const shiftArrWhen = (arr,check) => {
+    let len = arr.length;
+    for (let i = 0;i < len;i++) {
+        if (check(arr[0])) {
+            break;
+        } else {
+            arr.shift();
+        }
+    }
+    return arr;
+}
 
 module.exports = {
-    runPromiseByArrReturnPromise
+    runPromiseByArrReturnPromise,
+    popArrWhen,
+    shiftArrWhen,
 };
