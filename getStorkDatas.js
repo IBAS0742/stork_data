@@ -14,27 +14,7 @@ const {
 
 const waitTime = 10;
 const times = [
-    1648569600000,
-    1648656000000,
-    1648742400000,
-    1649174400000,
-    1649260800000,
-    1649347200000,
-    1649606400000,
-    1649692800000,
-    1649779200000,
-    1649865600000,
-    1649952000000,
-    1650211200000,
-    1650297600000,
-    1650384000000,
-    1650470400000,
-    1650556800000,
-    1650816000000,
-    1650902400000,
-    1650988800000,
-    1651075200000,
-    1651161600000,
+    1651766400000,
 ];
 
 const getUrl = (code,time) => {
@@ -44,8 +24,8 @@ const getUrl = (code,time) => {
 };
 
 const timeLen = times.length;
-// const codes = require('./codes.json');
-const codes = shiftArrWhen(require('./codes.json'),_ => _.symbol === 'SZ301059');
+const codes = require('./codes.json');
+// const codes = shiftArrWhen(require('./codes.json'),_ => _.symbol === 'SZ301059');
 console.log(`codes length = ${codes.length}`);
 
 // let arr = [];
@@ -91,7 +71,7 @@ const downloadStorkDatas = function () {
                     //         })
                     //     ];
                     // }
-                    fs.writeFileSync(`./storkData/${symbol}.json`,JSON.stringify(oneStorkDatas),'utf-8');
+                    fs.writeFileSync(`./storkData/fs/${symbol}.json`,JSON.stringify(oneStorkDatas),'utf-8');
                     // if (arr.length >= 6e4) {
                     //     saveTime++;
                     //     fs.writeFileSync(`./storkSql/${saveTime}.sql`,arr.map(item => {

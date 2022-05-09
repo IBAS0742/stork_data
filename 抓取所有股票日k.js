@@ -18,6 +18,7 @@ all = all.map(_ => {
     };
 });
 
+let port = '8088';
 
 const apis = {
     postToDb(method,param) {
@@ -30,7 +31,7 @@ const apis = {
         //     })
         // }).then(_=>_.text())
         console.log(`method = ${method} & param = ${param ? param.join(',') : ''}`)
-        return post(`http://localhost:8089/api`,{
+        return post(`http://localhost:${port}/api`,{
             headers:{
                 'Content-Type':'application/json',
             }

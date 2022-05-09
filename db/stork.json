@@ -10,10 +10,13 @@
     "   change 换手率",
     "         id(0+x) symbol(x) time(0) open(2) close(5)",
     "         high(3) low(4) ratePrice(6) rate(7)",
-    "         volume(1) changeVolume(9) change(8)"
+    "         volume(1) changeVolume(9) change(8)",
+    "数据表 dfcfkRecord 是 东方财富的日k数据",
+    "   比 kRecord 多了一个 振幅，即最低点到最高点之间的幅度(%)"
   ],
   "sqls": [
-    "create table if not exists kRecord (id char(30) primary key not null,symbol char(20) not null,time char(20) not null,open char(20) not null,close char(20) not null,high char(20) not null,low char(20) not null,rate char(10) not null,ratePrice char(20) not null,volume char(20) not null,changeVolume char(20) not null,change char(10) not null);"
+    "create table if not exists kRecord (id char(30) primary key not null,symbol char(20) not null,time char(20) not null,open char(20) not null,close char(20) not null,high char(20) not null,low char(20) not null,rate char(10) not null,ratePrice char(20) not null,volume char(20) not null,changeVolume char(20) not null,change char(10) not null);",
+    "create table if not exists dfcfkRecord (id char(30) primary key not null,symbol char(20) not null,time char(20) not null,open char(20) not null,close char(20) not null,high char(20) not null,low char(20) not null,rate char(10) not null,ratePrice char(20) not null,volume char(20) not null,changeVolume char(20) not null,change char(10) not null,deta char(8) not null);"
   ],
   "apis": [
     {
@@ -46,7 +49,29 @@
       "param": [],
       "sql": "select * from kRecord;",
       "desc": "-apis 获取所有 krecord 数据"
+    },
+    {
+      "name": "queryKRecordRangeTime",
+      "return": [
+        "id", "symbol", "time", "open", "close",
+        "high", "low", "ratePrice", "rate",
+        "volume", "changeVolume", "change"
+      ],
+      "param": ["symbol","fromTime","endTime"],
+      "sql": "select * from kRecord where symbol='{symbol}' and time>={fromTime} and time<={endTime} ORDER BY time;",
+      "desc": "-apis 获取所有 krecord 数据"
+    },
+    {
+      "name": "querydfcfKRecordRangeTime",
+      "return": [
+        "id", "symbol", "time", "open", "close",
+        "high", "low", "ratePrice", "rate",
+        "volume", "changeVolume", "change","deta"
+      ],
+      "param": ["symbol","fromTime","endTime"],
+      "sql": "select * from dfcfkRecord where symbol='{symbol}' and time>={fromTime} and time<={endTime} ORDER BY time;",
+      "desc": "-apis 获取所有 krecord 数据"
     }
   ],
-  "port": ":8089"
+  "port": ":8088"
 }

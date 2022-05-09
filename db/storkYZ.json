@@ -47,6 +47,22 @@
       "param": ["symbol", "time"],
       "sql": "select count(*) len from recordYZRow where symbol=\"{symbol}\" and time=\"{time}\";",
       "desc": "select count(*) len from recordYZRow where symbol=\"688068\" and time=\"1651161600\";"
+    },
+    {
+      "name": "getAllSymbol",
+      "return": ["symbol"],
+      "param": [],
+      "sql": "select symbol from recordYZRow group by symbol;",
+      "desc": ""
+    },
+    {
+      "name": "getAllDateBySymbol",
+      "return": [
+        "id","symbol","time","name","buy","sale","tag","succ","dir","ind"
+      ],
+      "param": ["symbol"],
+      "sql": "select * from recordYZRow where symbol=\"{symbol}\";",
+      "desc": ""
     }
   ]
 }

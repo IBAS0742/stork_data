@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../echarts_5.js"></script>
+    <script src="./config.js"></script>
+    <style>
+        #echart {
+            width: 100vw;
+            height: 100vh;
+        }
+        body {
+            padding: 0;
+            margin: 0;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+<div id="echart"></div>
+<script>
+    /**
+     * @param promise   要执行的 promise，可以自行封装一次
+     * @param arr       数组，参数集合，记得和 promise 匹配
+     * @param doPromiseReturn   如果需要对 promise 的结果进行处理，可以使用这个参数
+     * @returns {Promise<unknown>}
+     */
+    const runPromiseByArrReturnPromise = (promise,arr,doPromiseReturn) => {
+        let doing = false;
+        doPromiseReturn = doPromiseReturn || (_=>_);
+        return new Promise(s => {
+            let _id = setInterval(() => {
+                if (!doing) {
+                    doing = true;
+                    if (arr.length) {
+                        let id = arr.pop();
+                        promise(id)
+                            .then(o => {
+                                doPromiseReturn(o,id);
+                                doing = false;
+                            });
+                    } else {
+                        clearInterval(_id);
+                        s();
+                    }
+                }
+            },500);
+        });
+    }
+    window.st2YMD = (function () {
+        let d = new Date();
+        return ts => {
+            d.setTime(ts);
+            return `${d.getFullYear()}_${d.getMonth() + 1}_${d.getDate()}`
+        };
+    })();
+window.klineOption = (title,objArr,bar) => {
+    const upColor = '#00da3c';
+    const downColor = '#ec0000';
+    let data = (function () {
+        let categoryData = [];
+        let values = [];
+        let volumes = [];
+        let rate = [];
+
+        // {
+        //     "id": "SZ0023821617638400000",
+        //     "symbol": "SZ002382",
+        //     "time": "1617638400000",
+        //     "open": "18.8431",
+        //     "close": "18.7745",
+        //     "high": "18.9216",
+        //     "low": "18.7255",
+        //     "ratePrice": "-0.78",
+        //     "rate": "-0.1476",
+        //     "volume": "11126524",
+        //     "changeVolume": "213255595",
+        //     "change": "1.41"
+        // },
+        objArr.forEach((o,ind) => {
+            o.open = +o.open;
+            o.close = +o.close;
+            categoryData.push(st2YMD(o.time));
+            values.push([o.open,o.close,o.low,o.high]);
+            volumes.push([ind,o.volume,o.changeVolume / o.volume > o.close ? -1 : 1]);
+            if (ind) {
+                let s = objArr[ind - 1].close;
+                let c = o.close;
+                if (s > c) {
+                    rate.push('-' + parseInt((1 - c / s) * 1000) / 10 + '%')
+                } else {
+                    rate.push('+' + parseInt((c / s - 1) * 1000) / 10 + '%')
+                }
+            } else {
+                rate.push(null);
+            }
+        })
+        return {
+            categoryData: categoryData,
+            values: values,
+            volumes: volumes,
+            rate: rate
+        }
+    })();
+    bar = bar || [];
+    return {
+        animation: false,
+        title: {
+            text: title.join('\t')
+        },
+        legend: {
+            bottom: 10,
+            left: 'center',
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'cross'
+            },
+            borderWidth: 1,
+            borderColor: '#ccc',
+            padding: 10,
+            textStyle: {
+                color: '#000'
+            },
+            position: function (pos, params, el, elRect, size) {
+                const obj = {
+                    top: 10
+                };
+                obj[['left', 'right'][+(pos[0] < size.viewSize[0] / 2)]] = 30;
+                return obj;
+            }
+            // extraCssText: 'width: 170px'
+        },
+        axisPointer: {
+            link: [
+                {
+                    xAxisIndex: 'all'
+                }
+            ],
+            label: {
+                backgroundColor: '#777'
+            }
+        },
+        toolbox: {
+            feature: {
+                dataZoom: {
+                    yAxisIndex: false
+                },
+                brush: {
+                    type: ['lineX', 'clear']
+                }
+            }
+        },
+        brush: {
+            xAxisIndex: 'all',
+            brushLink: 'all',
+            outOfBrush: {
+                colorAlpha: 0.1
+            }
+        },
+        visualMap: {
+            show: false,
+            seriesIndex: 1,
+            dimension: 2,
+            pieces: [
+                {
+                    value: 1,
+                    color: downColor
+                },
+                {
+                    value: -1,
+                    color: upColor
+                }
+            ]
+        },
+        grid: [
+            {
+                left: '10%',
+                right: '8%',
+                height: '50%'
+            },
+            {
+                left: '10%',
+                right: '8%',
+                top: '63%',
+                height: '16%'
+            }
+        ],
+        xAxis: [
+            {
+                type: 'category',
+                data: data.categoryData,
+                boundaryGap: false,
+                axisLine: { onZero: false },
+                splitLine: { show: false },
+                min: 'dataMin',
+                max: 'dataMax',
+                axisPointer: {
+                    z: 100
+                }
+            },
+            {
+                type: 'category',
+                gridIndex: 1,
+                data: data.categoryData,
+                boundaryGap: false,
+                axisLine: { onZero: false },
+                axisTick: { show: false },
+                splitLine: { show: false },
+                axisLabel: { show: false },
+                min: 'dataMin',
+                max: 'dataMax'
+            }
+        ],
+        yAxis: [
+            {
+                scale: true,
+                splitArea: {
+                    show: true
+                }
+            },
+            {
+                scale: true,
+                gridIndex: 1,
+                splitNumber: 2,
+                axisLabel: { show: false },
+                axisLine: { show: false },
+                axisTick: { show: false },
+                splitLine: { show: false }
+            },
+            {
+                name: 'rate',
+                offset: 0,
+                show:false,
+                position: 'right',
+                "scale": true,
+                "splitArea": {
+                    "show": true
+                },
+                // max: maxPercent
+            },
+            {
+                name: 'bar',
+                offset: 0,
+                position: 'right',
+                "scale": true,
+                "splitArea": {
+                    "show": true
+                },
+                // max: maxPercent
+            }
+        ],
+        dataZoom: [
+            {
+                type: 'inside',
+                xAxisIndex: [0, 1],
+                start: 0,
+                end: 100
+            },
+            {
+                show: true,
+                xAxisIndex: [0, 1],
+                type: 'slider',
+                top: '85%',
+                start: 98,
+                end: 100
+            }
+        ],
+        series: [
+            {
+                name: 'K',
+                type: 'candlestick',
+                data: data.values,
+            },
+            {
+                name: 'Volume',
+                type: 'bar',
+                xAxisIndex: 1,
+                yAxisIndex: 1,
+                data: data.volumes
+            },
+            ...bar.map(b => {
+                return {
+                    ...b,
+                    "yAxisIndex": 3,
+                }
+            }),
+            {
+                "yAxisIndex": 2,
+                name: 'rate',
+                type: 'line',
+                show: false,
+                data: data.rate,
+                itemStyle: {
+                    color: 'white',
+                    opacity: 0,
+                },
+                lineStyle: {
+                    opacity: 0,                }
+            }
+        ]
+    };
+}
+window.onload = function () {
+    let ec = echarts.init(document.getElementById('echart'));
+    let arr = [];
+    for (let i in config) {
+        if (config[i]) {
+            arr.push(i);
+        }
+    }
+    runPromiseByArrReturnPromise(id => {
+        return fetch(config[id]).then(_=>_.json()).then(o => {
+            // ec.setOption(klineOption(o));
+            config[id] = o;
+        });
+    },arr).then(_ => {
+        let opt = klineOption(config.title,config.klineData,config.bar);
+        console.log(opt);
+        ec.setOption(opt);
+    })
+
+};
+</script>
+</body>
+</html>

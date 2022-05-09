@@ -31,6 +31,39 @@ const runPromiseByArrReturnPromise = (promise,arr,doPromiseReturn,waitTime) => {
     });
 };
 
+const numberNexter = (_from,_step) => {
+    let step = _step || 1;
+    let from = _from - step;
+    return function () {
+        from += step;
+        return from;
+    }
+};
+/**
+ * 一直执行一个 promise 只要判定条件一直是 true
+ * @param promise   promise函数
+ * @param nexter    迭代器(可以一直输出 promise 需要的参数)
+ * @param checkFn   检查是否满足条件的函数 接收参数为(promise的输出内容和 nexter 的输出内容)
+ */
+const runPromiseWhenTrue = (promise,nexter,checkFn) => {
+    let doing = false;
+    return new Promise(s => {
+        let _id = setInterval(() => {
+            if (!doing) {
+                doing = true;
+                let nextArg = nexter();
+                promise(nextArg).then(o => {
+                    if (checkFn(o,nextArg)) {
+                        doing = false;
+                    } else {
+                        s();
+                    }
+                });
+            }
+        },500);
+    });
+};
+
 const popArrWhen = (arr,check) => {
     let len = arr.length;
     for (let i = 0;i < len;i++) {
@@ -54,8 +87,54 @@ const shiftArrWhen = (arr,check) => {
     return arr;
 }
 
+const ymd2ts = (function () {
+    let d = new Date();
+    d.setHours(0);
+    d.setMinutes(0);
+    d.setSeconds(0);
+    d.setMilliseconds(0);
+    // ymd = 1999-11-10
+    return ymd => {
+        ymd = ymd.split('-').map(_=>+_);
+        d.setFullYear(ymd[0]);
+        d.setDate(ymd[2]);
+        d.setMonth(ymd[1] - 1);
+        return d.getTime();
+    };
+})();
+
+const dchange = (function () {
+    let d = new Date();
+    d.setHours(0);
+    d.setMinutes(0);
+    d.setSeconds(0);
+    d.setMilliseconds(0);
+    // ymd = 1999-11-10
+    let t2 = a => {
+        a = a + '';
+        return '00'.substring(a.length) + a;
+    }
+    return {
+        ymd2ts: ymd => { // 将 yyyy-mm-dd 转为时间戳
+            ymd = ymd.split('-').map(_=>+_);
+            d.setFullYear(ymd[0]);
+            d.setMonth(ymd[1] - 1);
+            d.setDate(ymd[2]);
+            return d.getTime();
+        },
+        ts2ymd: ts => { // 将 时间戳 转为 yyyy-mm-dd
+            d.setTime(ts);
+            return `${d.getFullYear()}-${t2(d.getMonth() + 1)}-${t2(d.getDate())}`
+        }
+    };
+})();
+
 module.exports = {
     runPromiseByArrReturnPromise,
     popArrWhen,
     shiftArrWhen,
+    ymd2ts,
+    dchange,
+    numberNexter,
+    runPromiseWhenTrue,
 };

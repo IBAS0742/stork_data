@@ -45,6 +45,18 @@ class Api {
         return this.postToDb('insertRecordFS',[symbol + timeStamp,symbol,time,timeStamp,amount,percent,chg,avg_price,volume,current].map(_ => _ + ''));
     }
 
+    queryKRecordRangeTime(symbol,fromTime,endTime) {
+        return this.postToDb('queryKRecordRangeTime',[symbol,fromTime,endTime].map(_ => _ + '')).then(JSON.parse).then(o => {
+            return JSON.parse(o.content);
+        });
+    }
+    querydfcfKRecordRangeTime(symbol,fromTime,endTime) {
+        return this.postToDb('querydfcfKRecordRangeTime',[symbol,fromTime,endTime].map(_ => _ + '')).then(JSON.parse).then(o => {
+            return JSON.parse(o.content);
+        });
+    }
+
+    // 游资
     insertRecordYZRow(id,symbol,time,name,buy,sale,tag,succ,dir,ind) {
         tag = Api.cut(tag,20);
         name = Api.cut(name,20);
@@ -53,6 +65,16 @@ class Api {
     checkYZRowBySymbolAndTime(symbol,time) {
         return this.postToDb('checkYZRowBySymbolAndTime',[symbol,time].map(_ => _ + '')).then(JSON.parse).then(o => {
             return JSON.parse(o.content)[0].len;
+        });
+    }
+    getAllSymbol() {
+        return this.postToDb('getAllSymbol',[].map(_ => _ + '')).then(JSON.parse).then(o => {
+            return JSON.parse(o.content);
+        });
+    }
+    getAllDateBySymbol(symbol) {
+        return this.postToDb('getAllDateBySymbol',[symbol].map(_ => _ + '')).then(JSON.parse).then(o => {
+            return JSON.parse(o.content);
         });
     }
 }

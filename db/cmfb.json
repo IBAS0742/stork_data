@@ -1,0 +1,81 @@
+{
+  "db_path": "C:\\Users\\admin\\Documents\\stork_data\\db\\cmfb.db",
+  "static_path": "C:\\Users\\admin\\Documents\\stork_data\\db\\views\\",
+  "static_url": "/views/",
+  "others": [
+    "数据库表说明",
+    "cmfb 是记录筹码分布的数据库，每个股票每日一个记录",
+    "   id          id",
+    "   symbol      代码",
+    "   time        时间戳 (整数)",
+    "   benefitPart 获利比例 (整型 * 100000000(一亿倍))",
+    "   avgCost     平均成本 (整形 * 100)",
+    "   sevenConcentration    70% 集中度 (整形 * 100000000 (一亿倍))",
+    "   sevenConcentrationRA  70% 集中下限 24.62 (整形 * 100)",
+    "   sevenConcentrationRB  70% 集中上限 26.54 (整形 * 100)",
+    "   nineConcentration     90% 集中度 (整形 * 100000000 (一亿倍))",
+    "   nineConcentrationRA   90% 集中下限 24.62 (整形 * 100)",
+    "   nineConcentrationRB   90% 集中上限 26.54 (整形 * 100)",
+    "   ",
+    "   "
+  ],
+  "sqls": [
+    "create table if not exists cmfb (id char(30) primary key not null,symbol char(20) not null,time bigint not null,benefitPart integer not null,avgCost integer not null,sevenConcentration bigint not null,sevenConcentrationRA integer not null,sevenConcentrationRB integer not null,nineConcentration bigint not null,nineConcentrationRA integer not null,nineConcentrationRB integer not null);"
+  ],
+  "apis": [
+    {
+      "name": "getTables",
+      "return": [
+        "name"
+      ],
+      "param": [],
+      "sql": "select name from sqlite_master where type=\"table\" order by name;",
+      "desc": "-apis 获取所有的表名\r"
+    },
+    {
+      "name": "insertkCMFB",
+      "return": [],
+      "param": [
+        "id", "symbol", "time", "benefitPart", "avgCost",
+        "sevenConcentration", "sevenConcentrationRA", "sevenConcentrationRB",
+        "nineConcentration", "nineConcentrationRA", "nineConcentrationRB"
+      ],
+      "sql": "insert or ignore into cmfb(id,symbol,time,benefitPart,avgCost,sevenConcentration,sevenConcentrationRA,sevenConcentrationRB,nineConcentration,nineConcentrationRA,nineConcentrationRB) values(\"{id}\",\"{symbol}\",{time},{benefitPart},{avgCost},{sevenConcentration},{sevenConcentrationRA},{sevenConcentrationRB},{nineConcentration},{nineConcentrationRA},{nineConcentrationRB});",
+      "desc": "-apis 插入一个记录项（检查唯一值，但是实际上也可以不用）\r"
+    },
+    {
+      "name": "queryCMFB",
+      "return": [
+        "id", "symbol", "time", "benefitPart", "avgCost",
+        "sevenConcentration", "sevenConcentrationRA", "sevenConcentrationRB",
+        "nineConcentration", "nineConcentrationRA", "nineConcentrationRB"
+      ],
+      "param": [],
+      "sql": "select id,symbol,time,benefitPart,avgCost,sevenConcentration,sevenConcentrationRA,sevenConcentrationRB,nineConcentration,nineConcentrationRA,nineConcentrationRB from cmfb;",
+      "desc": "-apis 获取所有 krecord 数据"
+    },
+    {
+      "name": "queryCMFBRangeTime",
+      "return": [
+        "id", "symbol", "time", "benefitPart", "avgCost",
+        "sevenConcentration", "sevenConcentrationRA", "sevenConcentrationRB",
+        "nineConcentration", "nineConcentrationRA", "nineConcentrationRB"
+      ],
+      "param": ["symbol","fromTime","endTime"],
+      "sql": "select id,symbol,time,benefitPart,avgCost,sevenConcentration,sevenConcentrationRA,sevenConcentrationRB,nineConcentration,nineConcentrationRA,nineConcentrationRB from cmfb where symbol='{symbol}' and time>={fromTime} and time<={endTime} ORDER BY time;",
+      "desc": "-apis 获取所有 krecord 数据"
+    },
+    {
+      "name": "queryCMFBRangeTimeAndBenefitPart",
+      "return": [
+        "id", "symbol", "time", "benefitPart", "avgCost",
+        "sevenConcentration", "sevenConcentrationRA", "sevenConcentrationRB",
+        "nineConcentration", "nineConcentrationRA", "nineConcentrationRB"
+      ],
+      "param": ["benefitPartFrom","benefitPartTo","fromTime","endTime"],
+      "sql": "select id,symbol,time,benefitPart,avgCost,sevenConcentration,sevenConcentrationRA,sevenConcentrationRB,nineConcentration,nineConcentrationRA,nineConcentrationRB from cmfb where benefitPart<{benefitPartTo} and benefitPart>{benefitPartFrom} and time>={fromTime} and time<={endTime} ORDER BY time;",
+      "desc": "-apis 获取所有 krecord 数据"
+    }
+  ],
+  "port": ":8078"
+}
