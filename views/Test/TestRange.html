@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../echarts_5.js"></script>
+    <style>
+        #echart {
+            width: 100vw;
+            height: 100vh;
+        }
+        body {
+            padding: 0;
+            margin: 0;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+<div id="echart"></div>
+<script>
+    window.createArr = (l,h,len) => {
+        let a = [];
+        for (let i = 0;i < len;i++) {
+            a.push(Math.random() * (h - l) + l);
+        }
+        return a;
+    }
+    window.onload = function() {
+        window.ec = echarts.init(document.getElementById('echart'));
+        let option = {
+            xAxis: {
+                type: 'category'
+            },
+            yAxis: {
+                type: 'value'
+            },
+            dataZoom: [
+                {
+                    type: 'inside',
+                    start: 0,
+                    end: 20
+                },
+                {
+                    start: 0,
+                    end: 20
+                }
+            ],
+            series: [
+                {
+                    data: createArr(1,10,100),
+                    type: 'line',
+                    smooth: true
+                }
+            ]
+        };
+        window.ec.setOption(option);
+    }
+</script>
+</body>
+</html>

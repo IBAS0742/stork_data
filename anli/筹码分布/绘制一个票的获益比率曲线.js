@@ -12,24 +12,35 @@ const {
 
 const cmfbApi = new CMFBApi('8078');
 
-const symbol = 'SH600115';
-
-const fasa = new FileAndServerApi();
-fasa.promiseName = FileAndServerApi.PromiseName.file;
-fasa.FilePath = {
-    filePath: "./../../tmp/cmfb.json",
-    dearFileFn: _ => JSON.parse(_)
-}
-fasa.ServerPromise = cmfbApi.queryCMFBRangeTime(symbol,dchange.ymd2ts('2022-01-01'),null).then(ret => {
+const symbol = 'SZ002382';
+const tmpPath = './../../tmp/'
+const cmfbFS = new FileAndServerApi(tmpPath);
+cmfbFS.ServerPromise = () => cmfbApi.queryCMFBRangeTime(symbol,null,null).then(ret => {
     ret.benefitPart = ret.map(_=>+_.benefitPart / 1e8)
     ret.avgCost = ret.map(_=>+_.avgCost / 1e2)
     ret.time = ret.map(_=>dchange.ts2ymd(_.time));
     return ret;
 });
+cmfbFS.FilePath = {
+    filePath: "./../../tmp/cmfb.json",
+    dearFileFn: _ => JSON.parse(_),
+    fileName: `cmfb_${symbol}.json`,
+}
+cmfbFS.autoPromise();
 
-fasa.promise().then(ret => {
-    console.log(ret.length);
+cmfbFS.promise().then(ret => {
+    return ret.map(obj => {
+        return {
+            ...obj,
+            benefitPart: +obj.benefitPart / 1e8,
+            avgCost: +obj.avgCost / 1e2,
+            time: dchange.ts2ymd(obj.time)
+        };
+    });
+}).then(ret => {
+    // console.log(ret.length);
 
+    const colors = ['#5470C6', '#91CC75', '#EE6666'];
     let option = {
         xAxis: ret.map(_=>_.time),
         yAxis: [

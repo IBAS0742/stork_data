@@ -15,9 +15,17 @@
             margin: 0;
             border: none;
         }
+        #sel {
+            z-index: 10;
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
     </style>
 </head>
 <body>
+<select id="sel"></select>
 <div id="echart"></div>
 <script>
     /**
@@ -160,11 +168,56 @@ window.klineOption = (title,klineData,lineData,bar) => {
                     ..._,
                     yAxisIndex: (ind + 1)
                 }
-            })
+            }),
+            {
+                tag: '_hidden_range_',
+                type: 'line',
+                smooth: true,
+                // prettier-ignore
+                data: [],
+                markArea: {
+                    itemStyle: {
+                        color: 'rgba(255, 173, 177, 0.4)'
+                    },
+                    data: [
+                        [
+                            {
+                                name: 'Morning Peak',
+                                xAxis: '-'
+                            },
+                            {
+                                xAxis: '-'
+                            }
+                        ]
+                    ]
+                }
+            }
         ]
     };
     return option;
 }
+const cut = function (from,to) {
+    config.klineData = config.klineData.slice(from,to);
+    config.lineData.xAxis = config.lineData.xAxis.slice(from,to);
+    config.lineData.series = config.lineData.series.map(o => {
+        return {
+            ...o,
+            data: o.data.slice(from,to)
+        }
+    });
+    if (config.range) {
+        let len = to - from;
+        config.range = config.range.map(r => {
+            return {
+                ...r,
+                inIndex: r.inIndex - from,
+                outIndex: r.outIndex - from,
+            }
+        }).filter(r => {
+            return r.inIndex >= 0 && r.outIndex < len;
+        });
+    }
+};
 window.onload = function () {
     let ec = echarts.init(document.getElementById('echart'));
     let arr = [];
@@ -179,9 +232,65 @@ window.onload = function () {
             config[id] = o;
         });
     },arr).then(_ => {
+        // cut(180,580)
         let opt = klineOption(config.title,config.klineData,config.lineData);
-        console.log(opt);
+        // console.log(opt);
         ec.setOption(opt);
+        if (config.range && config.range.length) {
+            let sel = document.getElementById('sel');
+            sel.style.display = 'block';
+            sel.innerHTML = config.range.map((r,ind) => {
+                return `<option value="${ind}">${ind + 1}</option>`
+            });
+            sel.onchange = function () {
+                let v = this.value;
+                let opt = ec.getOption();
+                let len = opt.xAxis[0].data.length;
+                let ind = 0;
+                for (;ind < opt.series.length;ind++) {
+                    if (opt.series[ind].tag === '_hidden_range_') {
+                        opt.series[ind] = {
+                            tag: '_hidden_range_',
+                            type: 'line',
+                            smooth: true,
+                            // prettier-ignore
+                            data: [],
+                            markArea: {
+                                itemStyle: {
+                                    color: 'rgba(255, 173, 177, 0.4)'
+                                },
+                                data: [
+                                    [
+                                        {
+                                            name: 'Morning Peak',
+                                            xAxis: config.range[v].inTime
+                                        },
+                                        {
+                                            xAxis: config.range[v].outTime
+                                        }
+                                    ]
+                                ]
+                            }
+                        };
+                    }
+                }
+                let start = parseInt(config.range[v].inIndex / len * 100) - 1;
+                let end = parseInt(config.range[v].outIndex / len * 100) + 1;
+                opt.dataZoom = [
+                    {
+                        type: 'inside',
+                        start: start,
+                        end: end
+                    },
+                    {
+                        start: start,
+                        end: end
+                    }
+                ];
+                console.log(`start = ${start}\tend = ${end}`);
+                ec.setOption(opt,true);
+            }
+        }
     })
 
 };

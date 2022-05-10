@@ -109,6 +109,9 @@ class CMFBApi extends _API {
         values("${id}","${symbol}",${arr.join(',')});`]
     }
     queryCMFBRangeTime(symbol,fromTime,endTime) {
+        if (!fromTime) {
+            fromTime = 0;
+        }
         if (!endTime) {
             endTime = new Date().getTime();
         }
@@ -122,6 +125,9 @@ class CMFBApi extends _API {
      * @returns {Promise<unknown>}
      */
     queryCMFBRangeTimeAndBenefitPart(benefitPartFrom,benefitPartTo,fromTime,endTime) {
+        if (!fromTime) {
+            fromTime = 0;
+        }
         if (benefitPartFrom < 1) {
             benefitPartFrom *= 1e8;
         }
