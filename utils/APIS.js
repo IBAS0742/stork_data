@@ -86,12 +86,17 @@ class KRecordApi extends _API {
             return JSON.parse(o.content);
         });
     }
+    querydfcfKRecordOrderByTimeLimit(symbol,limit) {
+        return this.postToDb('querydfcfKRecordOrderByTimeLimit',[symbol,limit].map(_ => _ + '')).then(JSON.parse).then(o => {
+            return JSON.parse(o.content);
+        });
+    }
 }
 
 class CMFBApi extends _API {
-    constructor() {
-        super();
-        this.port = "8078";
+    constructor(port) {
+        super(port);
+        this.port = port || "8078";
     }
 
     insertkCMFB(id,symbol,time,benefitPart,avgCost,sevenConcentration,sevenConcentrationRA,sevenConcentrationRB,nineConcentration,nineConcentrationRA,nineConcentrationRB){
@@ -105,8 +110,8 @@ class CMFBApi extends _API {
         let arr = [time,parseInt(benefitPart * 1e8),parseInt(avgCost * 100),
             parseInt(sevenConcentration * 1e8),parseInt(sevenConcentrationRA * 100),parseInt(sevenConcentrationRB * 100),
             parseInt(nineConcentration * 1e8),parseInt(nineConcentrationRA * 100),parseInt(nineConcentrationRB * 100)];
-        return [`insert or ignore into cmfb(id,symbol,time,benefitPart,avgCost,sevenConcentration,sevenConcentrationRA,sevenConcentrationRB,nineConcentration,nineConcentrationRA,nineConcentrationRB) 
-        values("${id}","${symbol}",${arr.join(',')});`]
+        return `insert or ignore into cmfb(id,symbol,time,benefitPart,avgCost,sevenConcentration,sevenConcentrationRA,sevenConcentrationRB,nineConcentration,nineConcentrationRA,nineConcentrationRB) 
+        values("${id}","${symbol}",${arr.join(',')});`;
     }
     queryCMFBRangeTime(symbol,fromTime,endTime) {
         if (!fromTime) {
@@ -138,6 +143,32 @@ class CMFBApi extends _API {
             endTime = new Date().getTime();
         }
         return this.postToDb('queryCMFBRangeTimeAndBenefitPart',[benefitPartFrom,benefitPartTo,fromTime,endTime],true);
+    }
+
+    getAllSymbol() {
+        return this.postToDb('getAllSymbol',[].map(_ => _ + '')).then(JSON.parse).then(o => {
+            return JSON.parse(o.content);
+        });
+    }
+    getAllSymbolFromTime(time) {
+        time = time + '';
+        time = time.substring(0,'1000915200'.length);
+        return this.postToDb('getAllSymbolFromTime',[time].map(_ => _ + '')).then(JSON.parse).then(o => {
+            return JSON.parse(o.content);
+        });
+    }
+    getAllSymbolFromTimeOnlySymbol(time) {
+        time = time + '';
+        time = time.substring(0,'1000915200'.length);
+        return this.postToDb('getAllSymbolFromTimeOnlySymbol',[time].map(_ => _ + '')).then(JSON.parse).then(o => {
+            return JSON.parse(o.content);
+        });
+    }
+
+    getAllDateBySymbol(symbol) {
+        return this.postToDb('getAllDateBySymbol',[symbol].map(_ => _ + '')).then(JSON.parse).then(o => {
+            return JSON.parse(o.content);
+        });
     }
 }
 

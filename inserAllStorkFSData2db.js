@@ -8,7 +8,7 @@ const {
 const fs = require('fs');
 const waitTime = 0;
 const map = require('./db/fs/map.json');
-const jsonPath = './storkData/fs';
+const jsonPath = './storkSql/fs_source';
 for (let i in map) {
     map[i].forEach(symbol => map[symbol] = +i + 1);
 }

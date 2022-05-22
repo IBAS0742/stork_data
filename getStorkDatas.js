@@ -9,12 +9,17 @@ const {
     option
 } = require('./utils/getOption');
 const {
-    shiftArrWhen
+    shiftArrWhen, dchange
 } = require('./utils/others');
 
 const waitTime = 10;
 const times = [
-    1651766400000,
+    dchange.ymd2ts('2022-05-13'),
+    dchange.ymd2ts('2022-05-16'),
+    dchange.ymd2ts('2022-05-17'),
+    dchange.ymd2ts('2022-05-18'),
+    dchange.ymd2ts('2022-05-19'),
+    dchange.ymd2ts('2022-05-20'),
 ];
 
 const getUrl = (code,time) => {
@@ -71,7 +76,7 @@ const downloadStorkDatas = function () {
                     //         })
                     //     ];
                     // }
-                    fs.writeFileSync(`./storkData/fs/${symbol}.json`,JSON.stringify(oneStorkDatas),'utf-8');
+                    fs.writeFileSync(`./storkSql/fs_source/${symbol}.json`,JSON.stringify(oneStorkDatas),'utf-8');
                     // if (arr.length >= 6e4) {
                     //     saveTime++;
                     //     fs.writeFileSync(`./storkSql/${saveTime}.sql`,arr.map(item => {

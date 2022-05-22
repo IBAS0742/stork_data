@@ -8,7 +8,7 @@
     "percent : 涨跌幅, chg : 涨跌额, avg_price : 平均价格, volume : 量, current : 当前价格"
   ],
   "sqls": [
-    "create table if not exists recordFS (id char(30) primary key not null,symbol char(20) not null,time char(20) not null,timeStamp char(20) not null,amount char(20) not null,percent char(8) not null,chg char(20) not null,avg_price char(10) not null,volume char(20) not null,current char(20) not null);"
+    "create table if not exists recordFS (   \"id\" char(30) NOT NULL,   \"symbol\" char(20) NOT NULL,   \"time\" bigint NOT NULL,   \"timeStamp\" bigint NOT NULL,   \"amount\" bigint NOT NULL,   \"percent\" float NOT NULL,   \"chg\" float NOT NULL,   \"avg_price\" float NOT NULL,   \"volume\" bigint NOT NULL,   \"current\" float NOT NULL,   PRIMARY KEY (\"id\") );"
   ],
   "apis": [
     {

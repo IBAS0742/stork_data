@@ -129,6 +129,57 @@ const dchange = (function () {
     };
 })();
 
+// 用于持续获取一个动态序列中，最后 len 个内符合条件的内容
+// 例如，一个序列中，一直返回最后4个最大的一个值
+// 序列如下：[1,5,8,1,3,5,4,6,]
+// [1] -> 1
+// [1,5] -> 5
+// [1,5,8] -> 8
+// [1,5,8,1] -> 8
+// [5,8,1,3] -> 8
+// [8,1,3,5] -> 8
+// [1,3,5,4] -> 5
+// [3,5,4,6] -> 6
+// m = new More(4,(a,b) => a > b);
+// [1,5,8,1,3,5,4,6,].forEach(_ => {m.add(_);console.log(m.current)});
+class More {
+    /**
+     * @param len       存储长度
+     * @param compare   对比函数
+     *                  function(old,new):bool {}
+     */
+    constructor(len,compare) {
+        this.compare = compare || Math.max;
+        this.cand = [];
+        this.len = len;
+    }
+    add(n) {
+        let clen = this.cand.length;
+        if (clen) {
+            let i = 0;
+            for (;i < this.cand.length;i++) {
+                this.cand[i].ind++;
+                if (!this.compare(this.cand[i].n,n)) {
+                    break;
+                }
+            }
+            this.cand = this.cand.slice(0,i).filter(_ => _.ind < this.len);
+            this.cand.push({
+                n: n,
+                ind: 0
+            })
+        } else {
+            this.cand.push({
+                n: n,
+                ind: 0
+            })
+        }
+    }
+    get current() {
+        return this.cand[0].n;
+    }
+}
+
 module.exports = {
     runPromiseByArrReturnPromise,
     popArrWhen,
@@ -137,4 +188,5 @@ module.exports = {
     dchange,
     numberNexter,
     runPromiseWhenTrue,
+    More,
 };

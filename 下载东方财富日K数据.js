@@ -29,23 +29,27 @@ let url = symbol => {
         '&beg=0&end=20500000&_=',new Date().getTime().toString()].join('')
 }
 
+const sourceFilePath = './storkSql/dfcf_k/';
+const sqlFilePath = './storkSql/dfcf_sql/';
+
 const keepLines = 5;
 function download() {
-    runPromiseByArrReturnPromise(obj => {
+    return runPromiseByArrReturnPromise(obj => {
         return get(url(obj.symbol),opt)
             .then(txt => {
                 txt = JSON.parse(txt.substring(4,txt.length - 2));
                 // console.log(txt)
                 if (txt.data.klines.length) {
-                    txt.data.klines = txt.data.klines.slice(txt.data.klines.length - keepLines);
-                    fs.writeFileSync(`./storkData/dfcfrk/${obj.symbol}.json`,JSON.stringify(txt),'utf-8');
+                    if (keepLines !== -1) {
+                        txt.data.klines = txt.data.klines.slice(txt.data.klines.length - keepLines);
+                    }
+                    fs.writeFileSync(`${sourceFilePath}${obj.symbol}.json`,JSON.stringify(txt),'utf-8');
                 } else {
                     console.log(`error ${obj.symbol}`);
                 }
             });
     },codes);
 }
-// download();
 function buildSql() {
     function buildOne(symbol) {
         // "1999-11-10,0.40,0.13,0.44,0.02,1740850,4859102000.00,-16.41,105.08,2.69,54.40"
@@ -57,12 +61,18 @@ function buildSql() {
             return `insert into dfcfkRecord(id,symbol,time,open,close,high,low,volume,changeVolume,deta,rate,ratePrice,change) values("${arr.join('","')}");`;
         }
         // let symbol = 'SH600000';
-        let d = require(`./storkData/dfcfrk/${symbol}.json`);
+        let d = require(`${sourceFilePath}${symbol}.json`);
         let sqls = d.data.klines.map(l => sql(l,symbol));
-        fs.writeFileSync(`./storkSql/dfcf/${symbol}.sql`,sqls.join('\r\n'),'utf-8');
+        fs.writeFileSync(`${sqlFilePath}${symbol}.sql`,sqls.join('\r\n'),'utf-8');
     }
     codes.forEach(c => buildOne(c.symbol));
     // buildOne("SH600000");
 }
+
+download()
+    .then(() => {
+        buildSql();
+    });
 buildSql();
+// buildSql();
 

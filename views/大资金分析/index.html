@@ -1,0 +1,164 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="../echarts_5.js"></script>
+    <style>
+        #echart {
+            width: 100vw;
+            height: 100vh;
+        }
+        body {
+            padding: 0;
+            margin: 0;
+            border: none;
+        }
+        #sel {
+            z-index: 10;
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+<select id="sel"></select>
+<div id="echart"></div>
+<script>
+    window.result = {};
+    window.ec = null;
+    window.initSelect = function () {
+        let sel = document.getElementById('sel');
+        sel.style.display = 'block';
+        let innerHTML = '';
+        let f = null;
+        for (let i in window.result) {
+            if (!f) f = i;
+            innerHTML += `<option value="${i}">${i}_${window.result[i].length}</option>`;
+        }
+        sel.innerHTML = innerHTML;
+        sel.onchange = function () {
+            window.updateEchartsOption(this.value);
+        };
+        window.updateEchartsOption(f);
+    }
+    window.updateEchartsOption = function (v) {
+        // let obj = {
+        //     "time": 1651680000000,
+        //     "buyInSale": 0,
+        //     "buyInBuy": 388087500,
+        //     "saleOutSale": 554007600,
+        //     "saleOutBuy": 0,
+        //     "jgBuyInBuy": 0,
+        //     "jgBuyInSale": 0,
+        //     "jgSaleOutBuy": 0,
+        //     "jgSaleOutSale": 0
+        // };
+        let emphasisStyle = {
+            itemStyle: {
+                shadowBlur: 10,
+                shadowColor: 'rgba(0,0,0,0.3)'
+            }
+        };
+        let objs = window.result[v];
+        let tags = [
+            {
+                stack: 'buy',
+                label: 'buyInSale',
+                name: '游资买入（卖）',
+            },
+            {
+                stack: 'buy',
+                label: 'buyInBuy',
+                name: '游资买入（买）',
+            },
+            {
+                stack: 'sale',
+                label: 'saleOutSale',
+                name: '游资卖出（卖）',
+            },
+            {
+                stack: 'sale',
+                label: 'saleOutBuy',
+                name: '游资卖出（买）',
+            },
+            {
+                stack: 'jbuy',
+                label: 'jgBuyInBuy',
+                name: '机构买入（买）',
+            },
+            {
+                stack: 'jbuy',
+                label: 'jgBuyInSale',
+                name: '机构买入（卖）',
+            },
+            {
+                stack: 'jsale',
+                label: 'jgSaleOutBuy',
+                name: '机构卖出（买）',
+            },
+            {
+                stack: 'jsale',
+                label: 'jgSaleOutSale',
+                name: '机构卖出（卖）',
+            },
+        ]
+        let option = {
+            legend: {},
+            tooltip: {
+                trigger: 'axis'
+            },
+            xAxis: {
+                data: objs.map(_ => _.time),
+                name: 'X Axis',
+                axisLine: { onZero: true },
+                splitLine: { show: false },
+                splitArea: { show: false }
+            },
+            yAxis: {},
+            grid: {
+                bottom: 100
+            },
+            series: [
+                ...tags.map((tg,ind) => {
+                    return {
+                        name: tg.name,
+                        type: 'bar',
+                        stack: tg.stack,
+                        emphasis: emphasisStyle,
+                        data: objs.map(_ => _[tg.label])
+                    };
+                }),
+                {
+                    name: 'total',
+                    type: 'line',
+                    data: objs.map(o => {
+                        let buyIn = 0;
+                        for (let i in o) {
+                            if (i.toString().endsWith('Buy')) {
+                                buyIn += o[i];
+                            } else if (i.toString().endsWith('Sale')) {
+                                buyIn -= o[i];
+                            }
+                        }
+                        return buyIn;
+                    })
+                },
+            ]
+        };
+        window.ec.setOption(option,true);
+    };
+    window.onload = function () {
+        window.ec = echarts.init(document.getElementById('echart'));
+        fetch('./result.json').then(_=>_.json()).then(o => {
+            window.result = o;
+            window.initSelect();
+        })
+    }
+</script>
+</body>
+</html>

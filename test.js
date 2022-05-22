@@ -16,6 +16,9 @@ codes.forEach(c => {
     count++;
 });
 
+const write_sql_path = name => `C:\\Users\\admin\\Documents\\stork_data\\storkSql\\fs\\${name}`;
+const insert_sql_path = name => `C:\\Users\\admin\\Documents\\stork_data\\storkSql\\${name}`;
+
 const configure = {
     "port": ":8099",
     "db_path": "storkFS.db",
@@ -32,15 +35,16 @@ const configure = {
     "apis": ids.map((is,ind) => {
         return [
             {
-                "name": `write_recordFS${ind}`,
+                "name": `write_recordFS${ind + 1}`,
                 "return": [
                     "id","symbol","time","timeStamp","amount","percent","chg","avg_price","volume","current"
                 ],
                 "param": [
-                    `C:\\Users\\admin\\Documents\\stork_data\\db\\fs\\out_${ind}.sql`,
+                    // `C:\\Users\\admin\\Documents\\stork_data\\storkSql\\fs\\out_${ind + 1}.sql`,
+                    write_sql_path(`out_${ind + 1}.sql`),
                     "insert or ignore into recordFS(id,symbol,time,timeStamp,amount,percent,chg,avg_price,volume,current) values(\"{0}\",\"{1}\",\"{2}\",\"{3}\",\"{4}\",\"{5}\",\"{6}\",\"{7}\",\"{8}\",\"{9}\");\r\n"
                 ],
-                "sql": `select * from recordFS where symbol in ('${is.join("','")}')`,
+                "sql": `select * from recordFS;`,
                 "desc": "-apis 获取所有的表名\r"
             },
             {
@@ -48,7 +52,8 @@ const configure = {
                 "return": [
                 ],
                 "param": [
-                    `C:\\Users\\admin\\Documents\\stork_data\\storkSql\\${ind + 1}.sql`,
+                    // `C:\\Users\\admin\\Documents\\stork_data\\storkSql\\${ind + 1}.sql`,
+                    insert_sql_path(`${ind + 1}.sql`),
                     "",
                     "1000",
                     ";insert or ignore into recordFS(id,symbol,time,timeStamp,amount,percent,chg,avg_price,volume,current) values"
@@ -60,6 +65,6 @@ const configure = {
     }).flatMap(_=>_)
 }
 
-fs.writeFileSync('./db/fs/map.json',JSON.stringify(map),'utf-8');
+// fs.writeFileSync('./db/fs/map.json',JSON.stringify(map),'utf-8');
 fs.writeFileSync('./db/fs/sp.json',JSON.stringify(configure,'','\t'),'utf-8');
 

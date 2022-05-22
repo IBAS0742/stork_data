@@ -16,7 +16,7 @@
   ],
   "sqls": [
     "create table if not exists kRecord (id char(30) primary key not null,symbol char(20) not null,time char(20) not null,open char(20) not null,close char(20) not null,high char(20) not null,low char(20) not null,rate char(10) not null,ratePrice char(20) not null,volume char(20) not null,changeVolume char(20) not null,change char(10) not null);",
-    "create table if not exists dfcfkRecord (id char(30) primary key not null,symbol char(20) not null,time char(20) not null,open char(20) not null,close char(20) not null,high char(20) not null,low char(20) not null,rate char(10) not null,ratePrice char(20) not null,volume char(20) not null,changeVolume char(20) not null,change char(10) not null,deta char(8) not null);"
+    "create table if not exists dfcfkRecord (   \"id\" char(30) NOT NULL,   \"symbol\" char(20) NOT NULL,   \"time\" bigint NOT NULL,   \"open\" FLOAT NOT NULL,   \"close\" FLOAT NOT NULL,   \"high\" FLOAT NOT NULL,   \"low\" FLOAT NOT NULL,   \"rate\" FLOAT NOT NULL,   \"ratePrice\" FLOAT NOT NULL,   \"volume\" bigint NOT NULL,   \"changeVolume\" FLAOT NOT NULL,   \"change\" FLOAT NOT NULL,   \"deta\" FLOAT NOT NULL,   PRIMARY KEY (\"id\") );"
   ],
   "apis": [
     {
@@ -71,6 +71,17 @@
       "param": ["symbol","fromTime","endTime"],
       "sql": "select * from dfcfkRecord where symbol='{symbol}' and time>={fromTime} and time<={endTime} ORDER BY time;",
       "desc": "-apis 获取所有 krecord 数据"
+    },
+    {
+      "name": "querydfcfKRecordOrderByTimeLimit",
+      "return": [
+        "id", "symbol", "time", "open", "close",
+        "high", "low", "ratePrice", "rate",
+        "volume", "changeVolume", "change","deta"
+      ],
+      "param": ["symbol","limit"],
+      "sql": "SELECT * from dfcfkRecord where symbol=\"{symbol}\" ORDER BY time desc limit {limit};",
+      "desc": "获取最后的 limit 条记录"
     }
   ],
   "port": ":8088"

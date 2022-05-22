@@ -18,6 +18,7 @@ const {
 let code = require('./codes.json');
 // code = popArrWhen(code,c => c.symbol === 'SH600630');
 const fs = require('fs');
+let calcLen = 10;
 
 
 const dfcfApi = new KRecordApi('8088');
@@ -27,13 +28,13 @@ const cmfbApi = new CMFBApi('8078');
 
 
 function calcAndSaveDb(symbol) {
-    return dfcfApi.querydfcfKRecordRangeTime(symbol,0,dchange.ymd2ts("2022-05-08"))
+    return dfcfApi.querydfcfKRecordOrderByTimeLimit(symbol,120 + calcLen + 1)
         .then(ret => ret.map(_=> {
             return {
                 ..._,
                 time: +_.time
             }
-        }).sort((a,b) => a[0] - b[0]))
+        }).reverse())
         .then(ret => {
             ret = ret.map(sqlObj2Arr);
             return new Promise(s => {
@@ -49,7 +50,7 @@ function calcAndSaveDb(symbol) {
                 // }).then(() => s());
                 // 生成 sql 文件后插
                 let sqls = [];
-                for (let i = 0;i < ret.length;i++) {
+                for (let i = ret.length - calcLen - 1;i < ret.length;i++) {
                     let o = calcCmfb(ret,i);
                     sqls.push(cmfbApi.insertkCMFB2Sql(`${symbol}_${ret[i][0]}`,symbol,
                         ret[i][0],o.benefitPart,o.avgCost,

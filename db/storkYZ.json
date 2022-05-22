@@ -11,7 +11,7 @@
     "     ind 是第几个索引，因为在请求中，包含了上部分和下部分，分别为 日换手率达 20% 的证券 和 连续三个交易日内，跌幅偏离值累计达 20% 的证券"
   ],
   "sqls": [
-    "create table if not exists recordYZRow(id char(30) primary key not null,symbol char(10) not null,time char(16) not null,name char(20) not null,buy char(14) not null,sale char(14) not null,tag char(20),succ char(5),dir char(5) not null,ind INTEGER not null);"
+    "create table if not exists recordYZRow (   \"id\" char(30) NOT NULL,   \"symbol\" char(10) NOT NULL,   \"time\" bigint NOT NULL,   \"name\" char(20) NOT NULL,   \"buy\" bigint NOT NULL,   \"sale\" bigint NOT NULL,   \"tag\" char(20),   \"succ\" float,   \"dir\" char(5) NOT NULL,   \"ind\" tinyint NOT NULL,   PRIMARY KEY (\"id\") );"
   ],
   "apis": [
     {
@@ -62,6 +62,24 @@
       ],
       "param": ["symbol"],
       "sql": "select * from recordYZRow where symbol=\"{symbol}\";",
+      "desc": ""
+    },
+    {
+      "name": "getAllSymbolFromTimeOnlySymbol",
+      "return": [
+        "id","symbol","time","name","buy","sale","tag","succ","dir","ind"
+      ],
+      "param": ["time"],
+      "sql": "select * from recordYZRow where time>={time} group by symbol;",
+      "desc": ""
+    },
+    {
+      "name": "getAllSymbolFromTime",
+      "return": [
+        "id","symbol","time","name","buy","sale","tag","succ","dir","ind"
+      ],
+      "param": ["time"],
+      "sql": "select * from recordYZRow where time>={time};",
       "desc": ""
     }
   ]

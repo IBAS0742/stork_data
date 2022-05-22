@@ -1,18 +1,22 @@
 const {
     Api
 } = require('./../../utils/insertIntoDb');
+const {
+    CMFBApi
+} = require('./../../utils/APIS');
 const fs = require('fs');
 
 const codes = require('./../../codesMap.json');
+const {dchange} = require("../../utils/others");
 
-const api = new Api(8091);
+const cmfbApi = new CMFBApi(8091);
 const kApi = new Api(8088);
 
 const tenDay = 3600 * 24 * 10 * 1000;
 
 // 显示有资金异动的股票
 const showStorks = function () {
-    api.getAllSymbol().then(sym => sym.map(_ => _.symbol).filter(_ => _[0] === '0' || _[0] === '6')).then(sym => {
+    cmfbApi.getAllSymbol().then(sym => sym.map(_ => _.symbol).filter(_ => _[0] === '0' || _[0] === '6')).then(sym => {
         sym.forEach(s => {
             if (s[0] === '0') {
                 s = `SZ` + s;
@@ -24,6 +28,18 @@ const showStorks = function () {
     })
 }
 // showStorks();
+
+// 获取最近一个时间段内的龙虎榜股票
+const getLatestSymbol = function (time) {
+    cmfbApi.getAllSymbolFromTime(time)
+        .then(obj => {
+            let symbols = obj.map(_ => _.symbol);
+            for (let i = 0;i < symbols.length;i += 5) {
+                console.log(symbols.slice(i, i + 5).join('\t'));
+            }
+        })
+}
+// getLatestSymbol(dchange.ymd2ts('2022-5-12'));
 
 /**
  * 查看一个股票资金异动 在 ind 为 0 部分的情况，仅仅分为 机构专用 和 游资 两个派别
@@ -38,7 +54,7 @@ const showOneStork = function (symbol,dear) {
     let time = {};
     let result = [];
     let fullSymbol = (symbol[0] === '0' ? 'SZ':'SH') + symbol;
-    api.getAllDateBySymbol(symbol).then(ret => {
+    cmfbApi.getAllDateBySymbol(symbol).then(ret => {
         let filter = {};
         ret.forEach(r => {
             if (!(r.time in time)) {
@@ -78,7 +94,7 @@ const showOneStork = function (symbol,dear) {
             let d = new Date();
             console.log(+result[0].time - tenDay);
             console.log(+result[0].time);
-            kApi.queryKRecordRangeTime(fullSymbol,(+result[0].time - tenDay),/*result[result.length - 1].time*/d.getTime())
+            kApi.querydfcfKRecordRangeTime(fullSymbol,(+result[0].time - tenDay),/*result[result.length - 1].time*/d.getTime())
                 .then(list => {
                     dear(result,list,symbol,fullSymbol);
                 });
@@ -132,7 +148,8 @@ const buildJSON = (result,list,symbol,fullSymbol) => {
                         }
                     ]`,'utf-8');
 };
-showOneStork("600162",buildJSON);
+showOneStork("002715",buildJSON);
+
 
 `
 SZ000056 -- 皇庭国际 

@@ -17,12 +17,14 @@ class Trade {
             hold: 0,            // 持有时间（天/交易日）
             inTime: time,       // 买入时间（年月日）
             outTime: -1,        // 卖出时间（年月日）
+            why: '',            // 卖出理由
         });
         return this;
     }
-    addOut(price,index,time) {
+    addOut(price,index,time,why) {
         this.hold = false;
         let inPrice = this.list[this._index].in;
+        this.list[this._index].why = why || '';
         this.list[this._index].out = price;
         this.list[this._index].earn = price / inPrice - 0.005;
         this.list[this._index].outIndex = index;

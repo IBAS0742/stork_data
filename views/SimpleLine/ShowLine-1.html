@@ -239,11 +239,14 @@ window.onload = function () {
         if (config.range && config.range.length) {
             let sel = document.getElementById('sel');
             sel.style.display = 'block';
-            sel.innerHTML = config.range.map((r,ind) => {
-                return `<option value="${ind}">${ind + 1}</option>`
+            sel.innerHTML = `<option value="-">不选择</option>` + config.range.map((r,ind) => {
+                return `<option value="${ind}">${ind + 1}  ${r.why}</option>`;
             });
             sel.onchange = function () {
                 let v = this.value;
+                if (v === '-') {
+                    return;
+                }
                 let opt = ec.getOption();
                 let len = opt.xAxis[0].data.length;
                 let ind = 0;
@@ -272,10 +275,15 @@ window.onload = function () {
                                 ]
                             }
                         };
+                        break;
                     }
                 }
                 let start = parseInt(config.range[v].inIndex / len * 100) - 1;
                 let end = parseInt(config.range[v].outIndex / len * 100) + 1;
+                if (config.range[v].outIndex === -1) {
+                    end = 100;
+                    opt.series[ind].markArea.data[0][1].xAxis = opt.xAxis[0].data[len - 1];
+                }
                 opt.dataZoom = [
                     {
                         type: 'inside',
@@ -292,7 +300,6 @@ window.onload = function () {
             }
         }
     })
-
 };
 </script>
 </body>

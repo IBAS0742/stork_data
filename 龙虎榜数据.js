@@ -98,7 +98,7 @@ const checkToGetOneStorkDateData = (function () {
     return (symbol,time) => {
         return api.checkYZRowBySymbolAndTime(symbol,time)
             .then(len => {
-                if (len) {
+                if (len !== '0') {
                     console.log(`symbol = ${symbol}\ttime = ${time}\tlen = ${len}`);
                     return emptyPromise();
                 } else {
