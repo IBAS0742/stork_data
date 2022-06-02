@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../echarts_5.js"></script>
+    <script src="./config.js"></script>
+    <style>
+        #echart {
+            width: 100vw;
+            height: 100vh;
+        }
+        body {
+            padding: 0;
+            margin: 0;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+<div id="echart"></div>
+<script>
+    window.ec = null;
+    window.json = null;
+    window.onload = function () {
+        window.ec = echarts.init(document.getElementById('echart'));
+        fetch('./option.json').then(_=>_.json()).then(o => {
+            window.json = o;
+            window.ec.setOption(o);
+        });
+        window.onresize = function () {
+            window.ec.resize();
+        }
+    };
+</script>
+</body>
+</html>

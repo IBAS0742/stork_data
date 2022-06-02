@@ -150,6 +150,7 @@ class CMFBApi extends _API {
             return JSON.parse(o.content);
         });
     }
+    // todo:接口定义位置错误（这里虽然不是很严重的问题，但是会导致接口无法理解）
     getAllSymbolFromTime(time) {
         time = time + '';
         time = time.substring(0,'1000915200'.length);
@@ -157,6 +158,7 @@ class CMFBApi extends _API {
             return JSON.parse(o.content);
         });
     }
+    // todo:接口定义位置错误（这里虽然不是很严重的问题，但是会导致接口无法理解）
     getAllSymbolFromTimeOnlySymbol(time) {
         time = time + '';
         time = time.substring(0,'1000915200'.length);
@@ -172,7 +174,48 @@ class CMFBApi extends _API {
     }
 }
 
+class YZApi extends _API {
+    constructor(port) {
+        super(port);
+        this.port = port || "8091";
+    }
+    insertRecordYZRow(id,symbol,time,name,buy,sale,tag,succ,dir,ind) {
+        tag = Api.cut(tag,20);
+        name = Api.cut(name,20);
+        return this.postToDb('insertRecordYZRow',[id,symbol,time,name,buy,sale,tag,succ,dir,ind].map(_ => _ + ''));
+    }
+    checkYZRowBySymbolAndTime(symbol,time) {
+        return this.postToDb('checkYZRowBySymbolAndTime',[symbol,time].map(_ => _ + '')).then(JSON.parse).then(o => {
+            return JSON.parse(o.content)[0].len;
+        });
+    }
+    getAllSymbol() {
+        return this.postToDb('getAllSymbol',[].map(_ => _ + '')).then(JSON.parse).then(o => {
+            return JSON.parse(o.content);
+        });
+    }
+    getAllDateBySymbol(symbol) {
+        return this.postToDb('getAllDateBySymbol',[symbol].map(_ => _ + '')).then(JSON.parse).then(o => {
+            return JSON.parse(o.content);
+        });
+    }
+    getAllSymbolFromTime(time) {
+        time = `${time}`.slice(0,10);
+        return this.postToDb('getAllSymbolFromTime',[time].map(_ => _ + '')).then(JSON.parse).then(o => {
+            return JSON.parse(o.content);
+        });
+    }
+    getAllSymbolFromTimeOnlySymbol(time) {
+        time = time + '';
+        time = time.substring(0,'1000915200'.length);
+        return this.postToDb('getAllSymbolFromTimeOnlySymbol',[time].map(_ => _ + '')).then(JSON.parse).then(o => {
+            return JSON.parse(o.content);
+        });
+    }
+}
+
 module.exports = {
     KRecordApi,
-    CMFBApi
+    CMFBApi,
+    YZApi
 };

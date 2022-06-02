@@ -1,0 +1,109 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="../echarts_5.js"></script>
+    <style>
+        #echart {
+            width: 100vw;
+            height: 100vh;
+        }
+        body {
+            padding: 0;
+            margin: 0;
+            border: none;
+        }
+        #sel {
+            z-index: 10;
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+<select id="sel"></select>
+<div id="echart"></div>
+<script>
+    function buildOption(stork,pred_arr) {
+        let option = {
+            xAxis: {
+                data: pred_arr.map((_,ind) => ind)
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    label: {
+                        backgroundColor: '#6a7985'
+                    }
+                }
+            },
+            "dataZoom": [
+                {
+                    show: true,
+                    start: 0,
+                    end: 100
+                },
+                {
+                    type: 'inside',
+                    start: 0,
+                    end: 100
+                },
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    name: 'stork',
+                    position: 'left',
+                    alignTicks: true,
+                },
+                {
+                    type: 'value',
+                    name: 'prediction',
+                    position: 'right',
+                    alignTicks: true,
+                    offset: 80,
+                }
+            ],
+            series: [
+                {
+                    yAxisIndex: 0,
+                    type: 'candlestick',
+                    data: stork.map(_ => {
+                        return [+_.open,+_.close,+_.low,+_.high]
+                    })
+                },
+                {
+                    yAxisIndex: 1,
+                    type: 'line',
+                    data: pred_arr
+                }
+            ]
+        };
+        return option;
+    }
+    window.ec = null;
+    window.onload = function () {
+        window.ec = echarts.init(document.getElementById('echart'));
+        fetch('./pred_result.txt').then(_=>_.text()).then(_=>_.split(',').map(_=>{
+            _ = +_;
+            if (_ < 0) {
+                _ = 1;
+            }
+            _ -= 1
+            return _;
+        })).then(arr => {
+            fetch('./stork.json').then(_=>_.json()).then(stork => {
+                let opt = buildOption(stork,arr);
+                ec.setOption(opt,true);
+            })
+        })
+    }
+</script>
+</body>
+</html>

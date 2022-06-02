@@ -32,7 +32,7 @@ let url = symbol => {
 const sourceFilePath = './storkSql/dfcf_k/';
 const sqlFilePath = './storkSql/dfcf_sql/';
 
-const keepLines = 5;
+const keepLines = 10;
 function download() {
     return runPromiseByArrReturnPromise(obj => {
         return get(url(obj.symbol),opt)
@@ -69,10 +69,10 @@ function buildSql() {
     // buildOne("SH600000");
 }
 
-download()
-    .then(() => {
-        buildSql();
-    });
-buildSql();
+download();
+    // .then(() => {
+    //     buildSql();
+    // });
+// buildSql();
 // buildSql();
 
