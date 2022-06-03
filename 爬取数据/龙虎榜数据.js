@@ -1,16 +1,16 @@
 const {
     get
-} = require('./utils/Ajax');
+} = require('../utils/Ajax');
 const {
     option
-} = require('./utils/getOption');
+} = require('../utils/getOption');
 const {
     runPromiseByArrReturnPromise,
     popArrWhen
-} = require('./utils/others');
+} = require('../utils/others');
 const {
     Api
-} = require('./utils/insertIntoDb');
+} = require('../utils/insertIntoDb');
 // const fs = require('fs');
 const api = new Api(8091);
 

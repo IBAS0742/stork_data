@@ -1,20 +1,20 @@
 const {
     Api
-} = require('./utils/insertIntoDb');
+} = require('../utils/insertIntoDb');
 const {
     runPromiseByArrReturnPromise,
     popArrWhen
-} = require('./utils/others');
+} = require('../utils/others');
 const fs = require('fs');
 const waitTime = 0;
-const map = require('./db/fs/map.json');
-const jsonPath = './storkSql/fs_source';
+const map = require('../db/fs/map.json');
+const jsonPath = './../storkSql/fs_source';
 for (let i in map) {
     map[i].forEach(symbol => map[symbol] = +i + 1);
 }
 const writeOutPath = symbol => {
     console.log(symbol);
-    return `./storkSql/${map[symbol]}/${symbol}_${(new Date().getTime())}.sql`;
+    return `./../storkSql/${map[symbol]}/${symbol}_${(new Date().getTime())}.sql`;
 };
 let api = new Api(8099);
 let files = popArrWhen(fs.readdirSync(jsonPath).filter(_=>_.endsWith('.json')),_ => _=== 'SZ301129.json');
@@ -22,7 +22,7 @@ let files = popArrWhen(fs.readdirSync(jsonPath).filter(_=>_.endsWith('.json')),_
 console.log(`len = ${files.length}`);
 
 for (let i = 1;i < 49;i++) {
-    let dir = `./storkSql/${i}`;
+    let dir = `./../storkSql/${i}`;
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir)
     }

@@ -1,16 +1,16 @@
 const {
     get
-} = require('./utils/Ajax');
+} = require('../utils/Ajax');
 const {
     setCookie
-} = require('./utils/getOption');
+} = require('../utils/getOption');
 const fs = require('fs');
-const codes = require('./codes.json');
+const codes = require('../codes.json');
 // const codes = [{symbol:"SZ002382"}];
 const {
     runPromiseByArrReturnPromise,
     ymd2ts
-} = require('./utils/others');
+} = require('../utils/others');
 
 let opt = setCookie('');
 
@@ -29,8 +29,8 @@ let url = symbol => {
         '&beg=0&end=20500000&_=',new Date().getTime().toString()].join('')
 }
 
-const sourceFilePath = './storkSql/dfcf_k/';
-const sqlFilePath = './storkSql/dfcf_sql/';
+const sourceFilePath = './../storkSql/dfcf_k/';
+const sqlFilePath = './../storkSql/dfcf_sql/';
 
 const keepLines = 10;
 function download() {
@@ -69,7 +69,8 @@ function buildSql() {
     // buildOne("SH600000");
 }
 
-download();
+// download();
+buildSql()
     // .then(() => {
     //     buildSql();
     // });

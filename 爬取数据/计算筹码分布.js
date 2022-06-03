@@ -1,31 +1,35 @@
 const {
     KRecordApi,
     CMFBApi
-} = require('./utils/APIS');
+} = require('../utils/APIS');
 const {
     dchange
-} = require('./utils/others');
+} = require('../utils/others');
 const {
     calcCmfb,
     sqlObj2Arr
-} = require('./utils/cmfb');
+} = require('../utils/cmfb');
 const {
     runPromiseByArrReturnPromise,
     runPromiseWhenTrue,
     numberNexter,
     popArrWhen
-} = require('./utils/others');
-let code = require('./codes.json');
+} = require('../utils/others');
+let code = require('../codes.json').filter(_ => {
+    let shsz = _.symbol.startsWith('SZ') || _.symbol.startsWith('SH');
+    if (shsz) {
+        shsz = _.symbol[2] === '0' || _.symbol[2] === '6';
+    }
+    return shsz;
+});
+// console.log(`symbols len = ${code.length}`);
 // code = popArrWhen(code,c => c.symbol === 'SH600630');
 const fs = require('fs');
-let calcLen = 10;
+let calcLen = 30;
 
 
 const dfcfApi = new KRecordApi('8088');
 const cmfbApi = new CMFBApi('8078');
-
-// const symbol = "SZ001234";
-
 
 function calcAndSaveDb(symbol) {
     return dfcfApi.querydfcfKRecordOrderByTimeLimit(symbol,120 + calcLen + 1)
@@ -58,7 +62,7 @@ function calcAndSaveDb(symbol) {
                         o.percentChips['90'].concentration,o.percentChips['90'].priceRange[0],o.percentChips['90'].priceRange[1],
                     ));
                 }
-                fs.writeFileSync(`./storkSql/cmfb/${symbol}.sql`,sqls.join('\r\n'),'utf-8');
+                fs.writeFileSync(`./../storkSql/cmfb/${symbol}.sql`,sqls.join('\r\n'),'utf-8');
                 s();
             });
         });

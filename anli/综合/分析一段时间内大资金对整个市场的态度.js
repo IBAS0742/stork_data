@@ -20,16 +20,25 @@ const mergeToList = (list,targetList) => {
     return list;
 };
 const options = (jgin,jgout,yzin,yzout,times) => {
-    let buyin = [];
-    let saleout = [];
-    let deta = [];
-    mergeToList(buyin,jgin);
-    mergeToList(buyin,yzin);
-    mergeToList(saleout,jgout);
-    mergeToList(saleout,yzout);
-    buyin.forEach((b,ind) => {
-        deta.push(b - saleout[ind]);
-    });
+    jgin = jgin.map(_=>parseInt(_));
+    jgout = jgout.map(_=>parseInt(_));
+    yzin = yzin.map(_=>parseInt(_));
+    yzout = yzout.map(_=>parseInt(_));
+    let jgBuyin = [];
+    let jgSaleout = [];
+    let yzBuyin = [];
+    let yzSaleout = [];
+    let jgDeta = [];
+    let yzDeta = [];
+    mergeToList(jgBuyin,jgin);
+    mergeToList(jgSaleout,jgout);
+    mergeToList(yzBuyin,yzin);
+    mergeToList(yzSaleout,yzout);
+    let len = jgout.length;
+    for (let i = 0;i < len;i++) {
+        jgDeta.push(jgBuyin[i] - jgSaleout[i]);
+        yzDeta.push(yzBuyin[i] - yzSaleout[i]);
+    }
     return {
         tooltip: {
             trigger: 'axis',
@@ -59,12 +68,16 @@ const options = (jgin,jgout,yzin,yzout,times) => {
                 }
             },
             {
+                position: 'right',
                 type: 'value',
                 name: '加和',
-                interval: 5,
-                axisLabel: {
-                    formatter: '{value} °C'
-                }
+                offset: 10,
+                axisLine: {
+                    show: true,
+                    lineStyle: {
+                        color: 'blue'
+                    }
+                },
             }
         ],
         grid: {
@@ -117,22 +130,40 @@ const options = (jgin,jgout,yzin,yzout,times) => {
                 data: yzout
             },
             {
-                name: '差值',
+                name: '机构差值',
                 type: 'line',
                 yAxisIndex: 0,
-                data: deta
+                data: jgDeta
             },
             {
-                name: '买入',
+                name: '游资差值',
                 type: 'line',
-                yAxisIndex: 1,
-                data: buyin
+                yAxisIndex: 0,
+                data: yzDeta
             },
             {
-                name: '买出',
+                name: '机构买入总和',
                 type: 'line',
                 yAxisIndex: 1,
-                data: saleout
+                data: jgBuyin
+            },
+            {
+                name: '机构买出总和',
+                type: 'line',
+                yAxisIndex: 1,
+                data: jgSaleout
+            },
+            {
+                name: '游资买入总和',
+                type: 'line',
+                yAxisIndex: 1,
+                data: yzBuyin
+            },
+            {
+                name: '游资买出总和',
+                type: 'line',
+                yAxisIndex: 1,
+                data: yzSaleout
             }
         ]
     }

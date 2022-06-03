@@ -1,0 +1,52 @@
+{
+  "db_path": "C:\\Users\\admin\\Documents\\stork_data\\db\\JHJJ.db",
+  "static_path": "C:\\Users\\admin\\Documents\\stork_data\\db\\views\\",
+  "static_url": "/views/",
+  "others": [
+    "数据库表说明",
+    "JHJJ 是记录筹码分布的数据库，每个股票每日一个记录",
+    "   id          id",
+    "   symbol      代码",
+    "   time        时间戳 (整数)",
+    "   direction   3 表示买方，1 表示卖方",
+    "   price       当前竞价价格(*100)",
+    "   volume      量",
+    "   bidask      未匹配量",
+    "   ",
+    "   "
+  ],
+  "sqls": [
+    "CREATE TABLE jhjj (\n  \"id\" char(30) NOT NULL,\n  \"symbol\" char(20) NOT NULL,\n  \"time\" bigint NOT NULL,\n  \"direction\" TINYINT NOT NULL,\n  \"price\" INTEGER NOT NULL,\n  \"volume\" INTEGER NOT NULL,\n  \"bidask\" INTEGER NOT NULL,\n  PRIMARY KEY (\"id\")\n);"
+  ],
+  "apis": [
+    {
+      "name": "getTables",
+      "return": [
+        "name"
+      ],
+      "param": [],
+      "sql": "select name from sqlite_master where type=\"table\" order by name;",
+      "desc": "-apis 获取所有的表名\r"
+    },
+    
+    {
+      "name": "queryJHJJ",
+      "return": [
+        "id", "symbol", "time", "direction", "price", "volume", "bidask"
+      ],
+      "param": [],
+      "sql": "select id,symbol,time,direction,price,volume,bidask from JHJJ;",
+      "desc": "-apis 获取所有 krecord 数据"
+    },
+    {
+      "name": "queryJHJJRangeTime",
+      "return": [
+        "id", "symbol", "time", "direction", "price", "volume", "bidask"
+      ],
+      "param": ["symbol","fromTime","endTime"],
+      "sql": "select id,symbol,time,direction,price,volume,bidask from JHJJ where symbol='{symbol}' and time>={fromTime} and time<={endTime} ORDER BY time;",
+      "desc": "-apis 获取所有 krecord 数据"
+    }
+  ],
+  "port": ":8068"
+}

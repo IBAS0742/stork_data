@@ -193,6 +193,47 @@ CREATE TABLE "main"."Untitled" (
 
 ![](./pic/筹码分布-代码.jpg)
 
+### 集合竞价
+
+- [数据来源：掘金量化] [实时行情]((https://www.myquant.cn/docs/data/86)) [变量约定](https://www.myquant.cn/docs/python/python_concept/#symbol)
+
+原始数据格式如下，只有时间和 quotes 的前两项是有意义的，数据也只存储这部分数据，其中 quotes 的 ask 和 bid 两项是一致的。
+
+![](./pic/集合竞价-原始数据.jpg)
+
+集合竞价数据的 quotes 第一项 askPrice === bidPrice 表示竞价，绘制为曲线，表示当前的股价
+
+quotes 第一项的 askVolume === bidVolume 表示当前竞价的买入、卖出量
+
+quotes 第二项的 askVolume !== bidVolume，askVolume 非零时表示当前，表示当前卖方占上风，还有 askVolume 抢着卖但没有任何人愿意买入，所以表示为卖出未匹配，显示为绿色，bidVolume 则表示买方占上风，有人买没人卖，显示为红色
+
+![](./pic/集合竞价-数据说明.jpg)
+
+数据库设计如下（不记录竞价之后的数据了，后面再看吧）
+
+| 标识符       | 说明            |
+|-----------|---------------|
+| id        | id            |
+| symbol    | 股票代码          |
+| time      | 交易日期(时间戳)     |
+| direction | 3 表示买方，1 表示卖方 |
+| price     | 当前竞价价格(*100)  |
+| volume    | 量             |
+| bidask    | 未匹配量          |
+
+```sql
+CREATE TABLE jhjj (
+  "id" char(30) NOT NULL,
+  "symbol" char(20) NOT NULL,
+  "time" bigint NOT NULL,
+  "direction" TINYINT NOT NULL,
+  "price" INTEGER NOT NULL,
+  "volume" INTEGER NOT NULL,
+  "bidask" INTEGER NOT NULL,
+  PRIMARY KEY ("id")
+);
+```
+
 ## 数据更新
 
 - 更新 ```龙虎榜``` 数据

@@ -120,6 +120,20 @@ const dchange = (function () {
             d.setFullYear(ymd[0]);
             d.setMonth(ymd[1] - 1);
             d.setDate(ymd[2]);
+            d.setHours(0);
+            d.setMinutes(0);
+            d.setSeconds(0);
+            return d.getTime();
+        },
+        ymdhms2ts: ymd => { // 将 yyyy-mm-dd HH:MM:SS 转为时间戳
+            hms = ymd.split(' ')[1].split(':').map(_=>+_);
+            ymd = ymd.split(' ')[0].split('-').map(_=>+_);
+            d.setFullYear(ymd[0]);
+            d.setMonth(ymd[1] - 1);
+            d.setDate(ymd[2]);
+            d.setHours(hms[0]);
+            d.setMinutes(hms[1]);
+            d.setSeconds(hms[2]);
             return d.getTime();
         },
         ts2ymd: ts => { // 将 时间戳 转为 yyyy-mm-dd

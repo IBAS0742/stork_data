@@ -1,27 +1,20 @@
 const fs = require('fs');
 const {
     get
-} = require('./utils/Ajax');
+} = require('../utils/Ajax');
 const {
     Task
-} = require('./utils/Task');
+} = require('../utils/Task');
 const {
     option
-} = require('./utils/getOption');
+} = require('../utils/getOption');
 const {
     shiftArrWhen, dchange
-} = require('./utils/others');
+} = require('../utils/others');
 
 const waitTime = 10;
 const times = [
-    dchange.ymd2ts('2022-05-23'),
-    dchange.ymd2ts('2022-05-24'),
-    dchange.ymd2ts('2022-05-25'),
-    dchange.ymd2ts('2022-05-26'),
-    dchange.ymd2ts('2022-05-27'),
-    dchange.ymd2ts('2022-05-30'),
-    dchange.ymd2ts('2022-05-31'),
-    dchange.ymd2ts('2022-06-01'),
+    dchange.ymd2ts('2022-06-02'),
     // dchange.ymd2ts('2022-06-02'),
 ];
 
@@ -32,10 +25,10 @@ const getUrl = (code,time) => {
 };
 
 const timeLen = times.length;
-// const codes = require('./codes.json');
-const codes = [{
-    symbol: 'SZ002496'
-}];
+const codes = require('../codes.json');
+// const codes = [{
+//     symbol: 'SZ002496'
+// }];
 // const codes = shiftArrWhen(require('./codes.json'),_ => _.symbol === 'SZ301059');
 console.log(`codes length = ${codes.length}`);
 
@@ -82,7 +75,7 @@ const downloadStorkDatas = function () {
                     //         })
                     //     ];
                     // }
-                    fs.writeFileSync(`./storkSql/fs_source/${symbol}.json`,JSON.stringify(oneStorkDatas),'utf-8');
+                    fs.writeFileSync(`./../storkSql/fs_source/${symbol}.json`,JSON.stringify(oneStorkDatas),'utf-8');
                     // if (arr.length >= 6e4) {
                     //     saveTime++;
                     //     fs.writeFileSync(`./storkSql/${saveTime}.sql`,arr.map(item => {
