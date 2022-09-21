@@ -5,7 +5,9 @@ const {
     setCookie
 } = require('../utils/getOption');
 const fs = require('fs');
-const codes = require('../codes.json');
+const path = require('path');
+// const codes = require('../codes.json');
+const codes = require('./getCodes').getCodes();
 // const codes = [{symbol:"SZ002382"}];
 const {
     runPromiseByArrReturnPromise,
@@ -32,7 +34,30 @@ let url = symbol => {
 const sourceFilePath = './../storkSql/dfcf_k/';
 const sqlFilePath = './../storkSql/dfcf_sql/';
 
-const keepLines = 10;
+const keepLines = 100;
+
+
+const ws = fs.createWriteStream(path.join(sqlFilePath, 'm.sql'), {
+    fd: null,
+    flags: 'w+',
+    mode: 438,
+    encoding: 'utf-8',
+    start: 0,
+    autoClose: true,
+    highWaterMark: 2
+})
+
+function buildSqlFromJson(json,symbol) {
+    // "1999-11-10,0.40,0.13,0.44,0.02,1740850,4859102000.00,-16.41,105.08,2.69,54.40"
+    let sql = (line,symbol) => {
+        let l = line.split(',');
+        let date = ymd2ts(l[0]);
+        let arr = [`${symbol}_${date}`,symbol,date,...l.slice(1)];
+        // [   日期，         开，      收，        高，      低，     成交量，      成交额，  振幅(high / (0%) - low / (0%)) ，  换手, 涨跌幅，  涨跌额, ]
+        return `insert into dfcfkRecord(id,symbol,time,open,close,high,low,volume,changeVolume,deta,rate,ratePrice,change) values("${arr.join('","')}");`;
+    }
+    return json.data.klines.map(l => sql(l,symbol))
+}
 function download() {
     return runPromiseByArrReturnPromise(obj => {
         return get(url(obj.symbol),opt)
@@ -43,34 +68,46 @@ function download() {
                     if (keepLines !== -1) {
                         txt.data.klines = txt.data.klines.slice(txt.data.klines.length - keepLines);
                     }
-                    fs.writeFileSync(`${sourceFilePath}${obj.symbol}.json`,JSON.stringify(txt),'utf-8');
+                    buildSqlFromJson(txt).forEach(sql => {
+                        ws.write(sql + '\r\n');
+                    });
+
+                    // fs.writeFileSync(`${sourceFilePath}${obj.symbol}.json`,JSON.stringify(txt),'utf-8');
                 } else {
                     console.log(`error ${obj.symbol}`);
                 }
             });
-    },codes);
+    },codes).then(() => {
+        ws.close();
+    });
 }
 function buildSql() {
+    // "1999-11-10,0.40,0.13,0.44,0.02,1740850,4859102000.00,-16.41,105.08,2.69,54.40"
+    let sql = (line,symbol) => {
+        let l = line.split(',');
+        let date = ymd2ts(l[0]);
+        let arr = [`${symbol}_${date}`,symbol,date,...l.slice(1)];
+        // [   日期，         开，      收，        高，      低，     成交量，      成交额，  振幅(high / (0%) - low / (0%)) ，  换手, 涨跌幅，  涨跌额, ]
+        return `insert into dfcfkRecord(id,symbol,time,open,close,high,low,volume,changeVolume,deta,rate,ratePrice,change) values("${arr.join('","')}");`;
+    }
     function buildOne(symbol) {
-        // "1999-11-10,0.40,0.13,0.44,0.02,1740850,4859102000.00,-16.41,105.08,2.69,54.40"
-        let sql = (line,symbol) => {
-            let l = line.split(',');
-            let date = ymd2ts(l[0]);
-            let arr = [`${symbol}_${date}`,symbol,date,...l.slice(1)];
-            // [   日期，         开，      收，        高，      低，     成交量，      成交额，  振幅(high / (0%) - low / (0%)) ，  换手, 涨跌幅，  涨跌额, ]
-            return `insert into dfcfkRecord(id,symbol,time,open,close,high,low,volume,changeVolume,deta,rate,ratePrice,change) values("${arr.join('","')}");`;
-        }
         // let symbol = 'SH600000';
-        let d = require(`${sourceFilePath}${symbol}.json`);
-        let sqls = d.data.klines.map(l => sql(l,symbol));
-        fs.writeFileSync(`${sqlFilePath}${symbol}.sql`,sqls.join('\r\n'),'utf-8');
+        let filepath = `${sourceFilePath}${symbol}.json`;
+        if (!fs.existsSync(filepath)) {
+            return [];
+        }
+        let d = require(filepath);
+        d.data.klines.map(l => sql(l,symbol)).forEach(sql => {
+            ws.write(sql + '\r\n');
+        });
     }
     codes.forEach(c => buildOne(c.symbol));
+    ws.end();
     // buildOne("SH600000");
 }
 
-// download();
-buildSql()
+download();
+// buildSql()
     // .then(() => {
     //     buildSql();
     // });

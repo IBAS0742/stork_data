@@ -126,8 +126,8 @@ const dchange = (function () {
             return d.getTime();
         },
         ymdhms2ts: ymd => { // 将 yyyy-mm-dd HH:MM:SS 转为时间戳
-            hms = ymd.split(' ')[1].split(':').map(_=>+_);
-            ymd = ymd.split(' ')[0].split('-').map(_=>+_);
+            hms = ymd.split(/[T ]/)[1].split(':').map(_=>+_);
+            ymd = ymd.split(/[T ]/)[0].split('-').map(_=>+_);
             d.setFullYear(ymd[0]);
             d.setMonth(ymd[1] - 1);
             d.setDate(ymd[2]);
@@ -139,7 +139,11 @@ const dchange = (function () {
         ts2ymd: ts => { // 将 时间戳 转为 yyyy-mm-dd
             d.setTime(ts);
             return `${d.getFullYear()}-${t2(d.getMonth() + 1)}-${t2(d.getDate())}`
-        }
+        },
+        ts2ymdhms: ts => {
+            d.setTime(ts);
+            return `${d.getFullYear()}-${t2(d.getMonth() + 1)}-${t2(d.getDate())}T${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
+        },
     };
 })();
 

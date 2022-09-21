@@ -15,6 +15,17 @@ const {
 const waitTime = 10;
 const times = [
     dchange.ymd2ts('2022-06-02'),
+    dchange.ymd2ts('2022-06-03'),
+    dchange.ymd2ts('2022-06-06'),
+    dchange.ymd2ts('2022-06-07'),
+    dchange.ymd2ts('2022-06-08'),
+    dchange.ymd2ts('2022-06-09'),
+    dchange.ymd2ts('2022-06-10'),
+    dchange.ymd2ts('2022-06-13'),
+    dchange.ymd2ts('2022-06-14'),
+    dchange.ymd2ts('2022-06-15'),
+    dchange.ymd2ts('2022-06-16'),
+    dchange.ymd2ts('2022-06-17'),
     // dchange.ymd2ts('2022-06-02'),
 ];
 

@@ -15,24 +15,38 @@ const {
     numberNexter,
     popArrWhen
 } = require('../utils/others');
-let code = require('../codes.json').filter(_ => {
-    let shsz = _.symbol.startsWith('SZ') || _.symbol.startsWith('SH');
-    if (shsz) {
-        shsz = _.symbol[2] === '0' || _.symbol[2] === '6';
-    }
-    return shsz;
-});
+let code = require('./getCodes').getCodes();
+// let code = require('../codes.json').filter(_ => {
+//     let shsz = _.symbol.startsWith('SZ') || _.symbol.startsWith('SH');
+//     if (shsz) {
+//         shsz = _.symbol[2] === '0' || _.symbol[2] === '6';
+//     }
+//     return shsz;
+// });
 // console.log(`symbols len = ${code.length}`);
 // code = popArrWhen(code,c => c.symbol === 'SH600630');
 const fs = require('fs');
 let calcLen = 30;
 
 
+
+const ws = fs.createWriteStream(`./storkSql/cmfb/m.sql`, {
+    fd: null,
+    flags: 'w+',
+    mode: 438,
+    encoding: 'utf-8',
+    start: 0,
+    autoClose: true,
+    highWaterMark: 2
+})
+
+
 const dfcfApi = new KRecordApi('8088');
 const cmfbApi = new CMFBApi('8078');
 
+const requestLen = 120 + calcLen + 1;
 function calcAndSaveDb(symbol) {
-    return dfcfApi.querydfcfKRecordOrderByTimeLimit(symbol,120 + calcLen + 1)
+    return dfcfApi.querydfcfKRecordOrderByTimeLimit(symbol,requestLen)
         .then(ret => ret.map(_=> {
             return {
                 ..._,
@@ -41,6 +55,9 @@ function calcAndSaveDb(symbol) {
         }).reverse())
         .then(ret => {
             ret = ret.map(sqlObj2Arr);
+            // if (ret.length == requestLen) {
+            //     return new Promise(s => s());
+            // }
             return new Promise(s => {
                 // 直插数据库
                 // let nNexter = numberNexter(ret.length - 1,-1);
@@ -54,7 +71,7 @@ function calcAndSaveDb(symbol) {
                 // }).then(() => s());
                 // 生成 sql 文件后插
                 let sqls = [];
-                for (let i = ret.length - calcLen - 1;i < ret.length;i++) {
+                for (let i = ret.length - calcLen - 1;i > 0 && i < ret.length;i++) {
                     let o = calcCmfb(ret,i);
                     sqls.push(cmfbApi.insertkCMFB2Sql(`${symbol}_${ret[i][0]}`,symbol,
                         ret[i][0],o.benefitPart,o.avgCost,
@@ -62,11 +79,16 @@ function calcAndSaveDb(symbol) {
                         o.percentChips['90'].concentration,o.percentChips['90'].priceRange[0],o.percentChips['90'].priceRange[1],
                     ));
                 }
-                fs.writeFileSync(`./../storkSql/cmfb/${symbol}.sql`,sqls.join('\r\n'),'utf-8');
+                sqls.forEach(s => {
+                    ws.write(s + "\r\n");
+                })
+                // fs.writeFileSync(`./../storkSql/cmfb/${symbol}.sql`,sqls.join('\r\n'),'utf-8');
                 s();
             });
         });
 }
 runPromiseByArrReturnPromise(obj => {
     return calcAndSaveDb(obj.symbol);
-},code)
+},code).then(() => {
+    ws.end();
+})

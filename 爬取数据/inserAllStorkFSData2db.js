@@ -16,7 +16,7 @@ const writeOutPath = symbol => {
     console.log(symbol);
     return `./../storkSql/${map[symbol]}/${symbol}_${(new Date().getTime())}.sql`;
 };
-let api = new Api(8099);
+// let api = new Api(8099);
 let files = popArrWhen(fs.readdirSync(jsonPath).filter(_=>_.endsWith('.json')),_ => _=== 'SZ301129.json');
 
 console.log(`len = ${files.length}`);

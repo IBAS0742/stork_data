@@ -214,8 +214,40 @@ class YZApi extends _API {
     }
 }
 
+class JHJJApi extends _API {
+    constructor(port) {
+        super(port);
+        this.port = port || "8068";
+    }
+    // "symbol","fromTime","endTime"
+    queryJHJJRangeTime(symbol,fromTime,endTime) {
+        return this.postToDb('queryJHJJRangeTime',[symbol,fromTime,endTime].map(_ => _ + '')).then(JSON.parse).then(o => {
+            return JSON.parse(o.content);
+        });
+    }
+}
+
+class FSApi extends _API {
+    constructor(port) {
+        super(port);
+        this.port = port || "8022";
+    }
+    getAllSymbol() {
+        return this.postToDb('getAllSymbol',[]).then(JSON.parse).then(o => {
+            return JSON.parse(o.content);
+        });
+    }
+    queryRecordFSBySymbol(symbol) {
+        return this.postToDb('queryRecordFSBySymbol',[symbol]).then(JSON.parse).then(o => {
+            return JSON.parse(o.content);
+        });
+    }
+}
+
 module.exports = {
     KRecordApi,
     CMFBApi,
-    YZApi
+    YZApi,
+    JHJJApi,
+    FSApi,
 };

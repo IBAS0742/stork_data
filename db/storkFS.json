@@ -37,7 +37,22 @@
       "param": [],
       "sql": "select * from recordFS;",
       "desc": "-apis 获取所有 recordFS 数据"
+    },
+    {
+      "name": "getAllSymbol",
+      "return": ["symbol"],
+      "param": [],
+      "sql": "select symbol from recordFS GROUP BY symbol;"
+    },
+    {
+      "name": "queryRecordFSBySymbol",
+      "return": [
+        "id","symbol","time","timeStamp","amount","percent","chg","avg_price","volume","current"
+      ],
+      "param": ["symbol"],
+      "sql": "select * from recordFS where symbol=\"{symbol}\";",
+      "desc": "-apis 获取所有 recordFS 数据"
     }
   ],
-  "port": ":8099"
+  "port": ":8022"
 }

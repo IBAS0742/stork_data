@@ -16,7 +16,7 @@
     "   "
   ],
   "sqls": [
-    "CREATE TABLE jhjj (\n  \"id\" char(30) NOT NULL,\n  \"symbol\" char(20) NOT NULL,\n  \"time\" bigint NOT NULL,\n  \"direction\" TINYINT NOT NULL,\n  \"price\" INTEGER NOT NULL,\n  \"volume\" INTEGER NOT NULL,\n  \"bidask\" INTEGER NOT NULL,\n  PRIMARY KEY (\"id\")\n);"
+    "create table if not exists jhjj (\n  \"id\" char(30) NOT NULL,\n  \"symbol\" char(20) NOT NULL,\n  \"time\" bigint NOT NULL,\n  \"direction\" TINYINT NOT NULL,\n  \"price\" INTEGER NOT NULL,\n  \"volume\" INTEGER NOT NULL,\n  \"bidask\" INTEGER NOT NULL,\n  PRIMARY KEY (\"id\")\n);"
   ],
   "apis": [
     {
