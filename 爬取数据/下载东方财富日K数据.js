@@ -62,17 +62,18 @@ function download() {
     return runPromiseByArrReturnPromise(obj => {
         return get(url(obj.symbol),opt)
             .then(txt => {
+                console.log(`[${new Date().toDateString()}] ${obj.symbol} [over]`);
                 txt = JSON.parse(txt.substring(4,txt.length - 2));
                 // console.log(txt)
                 if (txt.data.klines.length) {
                     if (keepLines !== -1) {
                         txt.data.klines = txt.data.klines.slice(txt.data.klines.length - keepLines);
                     }
-                    buildSqlFromJson(txt).forEach(sql => {
+                    buildSqlFromJson(txt,obj.symbol).forEach(sql => {
                         ws.write(sql + '\r\n');
                     });
 
-                    // fs.writeFileSync(`${sourceFilePath}${obj.symbol}.json`,JSON.stringify(txt),'utf-8');
+                    fs.writeFileSync(`${sourceFilePath}${obj.symbol}.json`,JSON.stringify(txt),'utf-8');
                 } else {
                     console.log(`error ${obj.symbol}`);
                 }

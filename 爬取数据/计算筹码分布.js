@@ -26,7 +26,7 @@ let code = require('./getCodes').getCodes();
 // console.log(`symbols len = ${code.length}`);
 // code = popArrWhen(code,c => c.symbol === 'SH600630');
 const fs = require('fs');
-let calcLen = 30;
+let calcLen = 150;
 
 
 
